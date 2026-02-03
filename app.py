@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 ロケットの向き修正完了！銀河鉄道の旅 🚂🌈🚀🌠")
-st.write("ロケットが正しい向き（進行方向）で飛ぶように直したよ！これでかっこよく宇宙を旅できるね！")
+st.title("🍄 はちゃめちゃ8方向！ロケット乱舞の銀河旅 🚂🌈🚀🌠")
+st.write("ロケットが上下左右・斜めの8方向にランダムで飛ぶようになったよ！今度こそ進行方向は合ってるはずだっち！😂")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -58,44 +58,64 @@ html_code = """
     #game-screen.galaxy-mode .star, #game-screen.galaxy-mode .moon { display: block; opacity: 1; }
     #game-screen.galaxy-mode .train-body { box-shadow: 0 0 15px #00BFFF, inset 0 0 5px #E0FFFF; border-color: #00BFFF; }
 
-    /* ★ロケット（修正版）★ */
+    /* ★ロケット（基本形：右向き）★ */
     .rocket {
         position: absolute; width: 60px; height: 30px; z-index: 2;
-        /* 左下から右上へ飛ぶアニメーション */
-        animation: flyAcrossDiagonal 8s linear forwards;
+        /* アニメーションはJSでクラス付与時に指定 */
     }
-    /* ロケット本体（左向きに変更） */
+    /* 本体（右向きに戻す） */
     .rocket-body {
         position: absolute; top: 5px; left: 10px; width: 40px; height: 20px;
         background: #f0f0f0;
-        border-radius: 10% 50% 50% 10%; /* 左を尖らせる */
+        border-radius: 50% 10% 10% 50%; /* 右を尖らせる */
         border: 2px solid #ccc;
     }
-    /* 翼（左側に移動・反転） */
+    /* 翼（右側へ） */
     .rocket-fin {
         position: absolute; width: 15px; height: 15px; background: #ff4500;
     }
-    .rocket-fin.top { top: 0; left: 5px; clip-path: polygon(100% 100%, 0 0, 0 100%); }
-    .rocket-fin.bottom { bottom: 0; left: 5px; clip-path: polygon(100% 0, 0 0, 0 100%); }
-    /* 窓（右側に移動） */
+    .rocket-fin.top { top: 0; right: 5px; clip-path: polygon(0 100%, 100% 0, 100% 100%); }
+    .rocket-fin.bottom { bottom: 0; right: 5px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    /* 窓（左側へ） */
     .rocket-window {
-        position: absolute; top: 8px; right: 15px; width: 8px; height: 8px;
+        position: absolute; top: 8px; left: 18px; width: 8px; height: 8px;
         background: #87CEEB; border-radius: 50%; border: 2px solid #555;
     }
-    /* 炎（左側から出るように） */
+    /* 炎（右側から出る） */
     .rocket-fire {
-        position: absolute; top: 10px; left: -15px; width: 20px; height: 10px;
-        background: linear-gradient(to left, #ffff00, #ff4500); /* グラデーション反転 */
-        border-radius: 0 50% 50% 0; /* 形反転 */
+        position: absolute; top: 10px; right: -15px; width: 20px; height: 10px;
+        background: linear-gradient(to right, #ffff00, #ff4500);
+        border-radius: 50% 0 0 50%;
         animation: flicker 0.2s infinite alternate;
     }
     @keyframes flicker { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(0.8); opacity: 0.7; } }
     
-    /* 斜め飛行アニメーション（45度傾けて左下→右上） */
-    @keyframes flyAcrossDiagonal {
-        from { left: -100px; top: 100%; transform: rotate(45deg); }
-        to { left: 120%; top: -200px; transform: rotate(45deg); }
-    }
+    /* --- 8方向のアニメーション --- */
+    /* 右へ */
+    .rocket-right { animation: flyRight 8s linear forwards; }
+    @keyframes flyRight { from { left: -100px; top: 20%; transform: rotate(0deg); } to { left: 120%; top: 20%; transform: rotate(0deg); } }
+    /* 左へ */
+    .rocket-left { animation: flyLeft 8s linear forwards; }
+    @keyframes flyLeft { from { left: 120%; top: 50%; transform: rotate(180deg); } to { left: -100px; top: 50%; transform: rotate(180deg); } }
+    /* 上へ */
+    .rocket-up { animation: flyUp 8s linear forwards; }
+    @keyframes flyUp { from { left: 50%; top: 120%; transform: rotate(-90deg); } to { left: 50%; top: -100px; transform: rotate(-90deg); } }
+    /* 下へ */
+    .rocket-down { animation: flyDown 8s linear forwards; }
+    @keyframes flyDown { from { left: 30%; top: -100px; transform: rotate(90deg); } to { left: 30%; top: 120%; transform: rotate(90deg); } }
+    /* 右上へ */
+    .rocket-up-right { animation: flyUpRight 8s linear forwards; }
+    @keyframes flyUpRight { from { left: -100px; top: 120%; transform: rotate(-45deg); } to { left: 120%; top: -100px; transform: rotate(-45deg); } }
+    /* 右下へ */
+    .rocket-down-right { animation: flyDownRight 8s linear forwards; }
+    @keyframes flyDownRight { from { left: -100px; top: -100px; transform: rotate(45deg); } to { left: 120%; top: 120%; transform: rotate(45deg); } }
+    /* 左上へ */
+    .rocket-up-left { animation: flyUpLeft 8s linear forwards; }
+    @keyframes flyUpLeft { from { left: 120%; top: 120%; transform: rotate(-135deg); } to { left: -100px; top: -100px; transform: rotate(-135deg); } }
+    /* 左下へ */
+    .rocket-down-left { animation: flyDownLeft 8s linear forwards; }
+    @keyframes flyDownLeft { from { left: 120%; top: -100px; transform: rotate(135deg); } to { left: -100px; top: 120%; transform: rotate(135deg); } }
+
 
     /* 流れ星 */
     .shooting-star {
@@ -154,22 +174,25 @@ html_code = """
     function respawn() { if (isRespawning) return; isRespawning = true; carriageCount = 0; renderTrain(); setTimeout(() => { playerY = 600; playerVy = 0; updatePlayerPosition(); isRespawning = false; }, 1000); }
     function showGetEffect() { const effect = document.createElement('div'); effect.classList.add('get-effect'); effect.textContent = 'CONNECT!'; effect.style.left = `${PLAYER_X}px`; effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; gameScreen.appendChild(effect); setTimeout(() => effect.remove(), 800); }
 
-    // ★ロケットと流れ星を生成する関数（修正版）★
+    // ★ロケットと流れ星を生成する関数（8方向ランダム版）★
     function spawnSpaceObjects() {
         if (!isGalaxyMode) return;
-        // ロケット (左下から右上へ)
-        if (Math.random() < 0.002) {
+        // ロケット (低確率)
+        if (Math.random() < 0.003) {
             const rocket = document.createElement('div');
             rocket.classList.add('rocket');
-            // パーツの順番を変更（炎が後ろになるように）
+            
+            // 8方向からランダムに選ぶ
+            const directions = ['right', 'left', 'up', 'down', 'up-right', 'down-right', 'up-left', 'down-left'];
+            const randomDir = directions[Math.floor(Math.random() * directions.length)];
+            rocket.classList.add(`rocket-${randomDir}`); // 対応するクラスを付与
+
             rocket.innerHTML = '<div class="rocket-fire"></div><div class="rocket-body"></div><div class="rocket-fin top"></div><div class="rocket-fin bottom"></div><div class="rocket-window"></div>';
             skyContainer.appendChild(rocket);
             setTimeout(() => rocket.remove(), 8000);
         }
         // 流れ星
-        if (Math.random() < 0.008) {
-            const shootingStar = document.createElement('div'); shootingStar.classList.add('shooting-star'); shootingStar.style.top = `${Math.random() * 200}px`; shootingStar.style.right = `${Math.random() * 200 - 200}px`; skyContainer.appendChild(shootingStar); setTimeout(() => shootingStar.remove(), 3000);
-        }
+        if (Math.random() < 0.008) { const shootingStar = document.createElement('div'); shootingStar.classList.add('shooting-star'); shootingStar.style.top = `${Math.random() * 200}px`; shootingStar.style.right = `${Math.random() * 200 - 200}px`; skyContainer.appendChild(shootingStar); setTimeout(() => shootingStar.remove(), 3000); }
     }
 
     function gameLoop() {
@@ -194,4 +217,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=650)
 
-st.write("今度こそロケットは正しい向きで飛んでいくよ！🚀💨 宇宙モードで確認してみてね！")
+st.write("今度こそ！ロケットは正しい向きで、8方向にランダムに飛んでいくよ！🚀💨 宇宙モードで確認してみてね！")
