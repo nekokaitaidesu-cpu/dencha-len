@@ -2,11 +2,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ページ設定
-st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
+st.set_page_config(page_title="ぽよぽよ電車ジャンプ", layout="wide")
 
 # タイトル
-st.title("🍄 今度こそ完璧！進行方向バッチリの8方向ロケット 🚂🌈🚀🌠")
-st.write("ロケットの向きと進行方向を完璧に合わせたよ！8方向どこへ飛んでも自然に見えるはずだっち！何度もお手数かけてごめんね！🙇‍♀️")
+st.title("チケットを拾うと車両が増えます")
+st.write("4車両になると宇宙に旅立ちます。")
 
 # HTML/CSS/JSコード
 html_code = """
