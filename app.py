@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 ぽよぽよ電車ジャンプ：THE FINAL 🚂💨")
-st.write("ついに完成！ボス戦のバランス調整、エンディング、スマホ対策もバッチリだっち！最後まで走り抜けてね！")
+st.title("🍄 完全修正版！ぽよぽよ銀河決戦 🚂🌌🦅")
+st.write("フリーズバグを根絶！自機は左端へ！カラスもチケットもちゃんと飛んでくる、完全版のボスバトルだっち！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -18,8 +18,9 @@ html_code = """
 <style>
     /* --- CSS (スタイル設定) --- */
     * {
-        -webkit-tap-highlight-color: transparent; /* スマホのタップ時の青色を消す */
+        -webkit-tap-highlight-color: transparent;
         user-select: none;
+        box-sizing: border-box;
     }
 
     :root {
@@ -50,6 +51,7 @@ html_code = """
     .cloud::after, .cloud::before { content: ''; position: absolute; background: inherit; border-radius: 50%; }
     .cloud.c1 { width: 120px; height: 40px; top: 60px; left: 10%; } .cloud.c1::after { width: 50px; height: 50px; top: -20px; left: 15px; } .cloud.c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
     .cloud.c2 { width: 80px; height: 30px; top: 150px; left: 60%; } .cloud.c2::after { width: 35px; height: 35px; top: -15px; left: 10px; }
+    
     .star { position: absolute; background: #FFF; border-radius: 50%; z-index: 0; opacity: 0; display: none; box-shadow: 0 0 4px #FFF; }
     .star.drawn { width: 10px; height: 10px; background: #FFD700; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: twinkle 2s infinite alternate; }
     .moon { position: absolute; top: 40px; right: 60px; width: 60px; height: 60px; background: transparent; border-radius: 50%; box-shadow: -15px 15px 0 0 #FFD700; opacity: 0; display: none; z-index: 0; transform: rotate(-10deg); animation: floatMoon 3s ease-in-out infinite alternate; }
@@ -60,7 +62,7 @@ html_code = """
     #game-screen.galaxy-mode .star, #game-screen.galaxy-mode .moon { display: block; opacity: 1; }
     #game-screen.galaxy-mode .train-body { box-shadow: 0 0 15px #00BFFF, inset 0 0 5px #E0FFFF; border-color: #00BFFF; }
 
-    /* メッセージ画面（警告・勝利） */
+    /* メッセージ画面 */
     .message-overlay {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6); z-index: 100; display: none;
@@ -77,11 +79,11 @@ html_code = """
     @keyframes flashAlert { from { opacity: 0.2; } to { opacity: 0.8; } }
     @keyframes blinkText { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
-    /* ★ボスキャラ★ */
+    /* ボスキャラ */
     .boss {
         position: absolute; width: 120px; height: 120px; z-index: 20;
         right: 20px; top: 50%; display: none;
-        animation: bossFloat 3s ease-in-out infinite alternate; /* 少しゆっくりに */
+        animation: bossFloat 3s ease-in-out infinite alternate;
     }
     .boss-body { position: absolute; width: 100px; height: 80px; top: 20px; left: 10px; background: #222; border-radius: 50%; border: 4px solid #aaa; box-shadow: inset 0 0 20px #000; }
     .boss-eye { position: absolute; width: 20px; height: 20px; background: #f00; border-radius: 50%; top: 20px; left: 20px; box-shadow: 0 0 10px #f00; animation: blink 0.2s infinite alternate; }
@@ -94,14 +96,13 @@ html_code = """
     @keyframes blink { from { opacity: 0.5; } to { opacity: 1; } }
     @keyframes flapBoss { from { transform: rotate(0deg); } to { transform: rotate(-20deg); } }
 
-    /* プレイヤーの弾 */
+    /* ミサイル・爆発 */
     .train-missile { position: absolute; z-index: 15; pointer-events: none; }
     .train-missile .train-unit { transform: rotate(0deg); }
-
     .explosion { position: absolute; font-size: 40px; pointer-events: none; z-index: 50; animation: fadeOut 0.5s forwards; }
     @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(2); } }
 
-    /* 背景要素 */
+    /* 背景 */
     #obstacles-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--bridge-height); z-index: 5; }
     .bridge-part {
         position: absolute; bottom: 0; height: 100%; background-color: var(--current-bridge-base);
@@ -117,7 +118,7 @@ html_code = """
     @keyframes rainbowMove { 0% { background-position: 0 0; } 100% { background-position: 100px 0; } }
     #game-screen.galaxy-mode .bridge-part::before { opacity: 1; } #game-screen.galaxy-mode .bridge-part::after { opacity: 0; }
 
-    .item { position: absolute; bottom: 50px; width: 30px; height: 20px; background: #FFD700; border: 2px solid #FFA000; border-radius: 4px; z-index: 6; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); animation: floatItem 1s ease-in-out infinite alternate; } .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; } @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    /* アイテム */ .item { position: absolute; bottom: 50px; width: 30px; height: 20px; background: #FFD700; border: 2px solid #FFA000; border-radius: 4px; z-index: 6; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); animation: floatItem 1s ease-in-out infinite alternate; } .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; } @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
     
     /* ロケット */ .rocket { position: absolute; width: 60px; height: 30px; z-index: 2; } .rocket-body { position: absolute; top: 5px; left: 10px; width: 40px; height: 20px; background: #f0f0f0; border-radius: 10% 50% 50% 10%; border: 2px solid #ccc; } .rocket-fin { position: absolute; width: 15px; height: 15px; background: #ff4500; } .rocket-fin.top { top: 0; left: 5px; clip-path: polygon(100% 100%, 0 0, 0 100%); } .rocket-fin.bottom { bottom: 0; left: 5px; clip-path: polygon(100% 0, 0 0, 0 100%); } .rocket-window { position: absolute; top: 8px; right: 15px; width: 8px; height: 8px; background: #87CEEB; border-radius: 50%; border: 2px solid #555; } .rocket-fire { position: absolute; top: 10px; left: -15px; width: 20px; height: 10px; background: linear-gradient(to right, #ffff00, #ff4500); border-radius: 50% 0 0 50%; animation: flicker 0.2s infinite alternate; } @keyframes flicker { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(0.8); opacity: 0.7; } }
     .rocket-right { animation: flyRight 8s linear forwards; } @keyframes flyRight { from { left: -100px; top: 20%; transform: rotate(0deg); } to { left: 120%; top: 20%; transform: rotate(0deg); } }
@@ -135,7 +136,7 @@ html_code = """
     .stolen-scene { position: absolute; z-index: 30; pointer-events: none; } .stolen-scene .train-unit { transform: rotate(10deg); }
 
     /* プレイヤー */
-    #player-train { position: absolute; left: 100px; height: 40px; z-index: 10; transform-origin: bottom center; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; transition: top 0.1s ease-out; } 
+    #player-train { position: absolute; left: 100px; height: 40px; z-index: 10; transform-origin: bottom center; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; transition: top 0.1s ease-out, left 0.5s ease; } 
     #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; }
     #player-train.stunned { animation: spin 0.2s linear infinite !important; transition: none; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -183,12 +184,17 @@ html_code = """
     const gameScreen = document.getElementById('game-screen'); const playerTrain = document.getElementById('player-train'); const obstaclesContainer = document.getElementById('obstacles-container'); const skyContainer = document.getElementById('sky-container'); const starsContainer = document.getElementById('stars-container'); const carriageCountDisplay = document.getElementById('carriage-count-display'); const root = document.documentElement;
     const bossAlert = document.getElementById('boss-alert'); const bossElement = document.getElementById('boss'); const bossHpBar = document.getElementById('boss-hp'); const victoryScreen = document.getElementById('victory-screen');
 
-    const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; const PLAYER_X = 100; const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
+    const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; 
+    const DEFAULT_PLAYER_X = 100;
+    const BOSS_PLAYER_X = 20; // ボス戦時の左端位置
+    let currentPlayerX = DEFAULT_PLAYER_X; // 動的に変わるX座標
+
+    const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
     let isGameRunning = false; let animationId; let playerY = BRIDGE_HEIGHT; let playerVy = 0; let isGrounded = true; let isRespawning = false; let isGalaxyMode = false;
     let obstacles = []; let items = []; let crows = []; let stolenScenes = []; let carriageCount = 0;
     
     // ボス戦用変数
-    let isBossBattle = false; let bossHP = 10; const MAX_BOSS_HP = 10; let bossY = 300; let bossVy = 1.5; // 少し遅く
+    let isBossBattle = false; let bossHP = 10; const MAX_BOSS_HP = 10; let bossY = 300; let bossVy = 1.5;
     let bossCrows = []; let playerMissiles = []; let isStunned = false;
     let isDragging = false; let dragStartY = 0; let trainStartY = 0;
 
@@ -201,24 +207,42 @@ html_code = """
         if (carriageCount >= 7 && !isBossBattle) startBossBattle();
     }
     
-    function initGame() { isGameRunning = true; isRespawning = false; isBossBattle = false; isStunned = false; 
+    function initGame() { 
+        isGameRunning = true; isRespawning = false; isBossBattle = false; isStunned = false; 
         bossElement.style.display = 'none'; bossAlert.style.display = 'none'; victoryScreen.style.display = 'none';
-        obstaclesContainer.style.display = 'block'; // 橋再表示
-        toggleGalaxyMode(false); // 昼に戻す
+        obstaclesContainer.style.display = 'block'; 
+        toggleGalaxyMode(false);
         
-        playerTrain.classList.remove('stunned'); playerTrain.classList.add('poyo'); playerTrain.style.bottom = 'auto'; // styleリセット
+        currentPlayerX = DEFAULT_PLAYER_X;
+        playerTrain.style.left = `${currentPlayerX}px`;
+        playerTrain.classList.remove('stunned'); playerTrain.classList.add('poyo'); playerTrain.style.bottom = 'auto';
         playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true; updatePlayerPosition(); 
         
-        obstacles.forEach(obs => obs.element.remove()); obstacles = []; items.forEach(item => item.element.remove()); items = []; crows.forEach(crow => crow.element.remove()); crows = []; stolenScenes.forEach(s => s.element.remove()); stolenScenes = []; bossCrows.forEach(b => b.element.remove()); bossCrows = []; playerMissiles.forEach(m => m.element.remove()); playerMissiles = []; 
-        carriageCount = 0; renderTrain(); createObstacle(0, 2000, 'bridge'); if (animationId) cancelAnimationFrame(animationId); gameLoop(); }
+        obstacles.forEach(obs => obs.element.remove()); obstacles = []; 
+        items.forEach(item => item.element.remove()); items = []; 
+        crows.forEach(crow => crow.element.remove()); crows = []; 
+        stolenScenes.forEach(s => s.element.remove()); stolenScenes = []; 
+        bossCrows.forEach(b => b.element.remove()); bossCrows = []; 
+        playerMissiles.forEach(m => m.element.remove()); playerMissiles = []; 
+        
+        carriageCount = 0; renderTrain(); createObstacle(0, 2000, 'bridge'); if (animationId) cancelAnimationFrame(animationId); gameLoop(); 
+    }
     
     function startBossBattle() {
         isBossBattle = true; toggleGalaxyMode(true); bossAlert.style.display = 'flex';
-        // 橋を消す
         obstaclesContainer.style.display = 'none';
         
+        // ゴミ掃除（重要：アイテムも消す）
+        obstacles.forEach(obs => obs.element.remove()); obstacles = []; 
+        crows.forEach(c => c.element.remove()); crows = [];
+        items.forEach(i => i.element.remove()); items = [];
+        
+        // 自機移動
+        currentPlayerX = BOSS_PLAYER_X;
+        playerTrain.style.left = `${currentPlayerX}px`;
+        
         setTimeout(() => { bossAlert.style.display = 'none'; bossElement.style.display = 'block'; }, 2000);
-        obstacles.forEach(obs => obs.element.remove()); obstacles = []; crows.forEach(c => c.element.remove()); crows = [];
+        
         bossHP = MAX_BOSS_HP; bossHpBar.style.width = '100%';
         playerTrain.style.bottom = 'auto'; playerY = 300; updatePlayerPosition();
     }
@@ -228,9 +252,8 @@ html_code = """
         bossElement.style.display = 'none';
         playerMissiles.forEach(m => m.element.remove());
         bossCrows.forEach(b => b.element.remove());
+        items.forEach(i => i.element.remove());
         victoryScreen.style.display = 'flex';
-        
-        // 勝利クリックでリセット
         victoryScreen.onclick = () => { initGame(); };
     }
 
@@ -239,9 +262,9 @@ html_code = """
         carriageCount--; renderTrain();
         const missile = document.createElement('div'); missile.classList.add('train-missile');
         missile.innerHTML = createTrainUnitHTML(false); 
-        missile.style.left = `${PLAYER_X + 50}px`; missile.style.top = `${600 - playerY - 40}px`;
+        missile.style.left = `${currentPlayerX + 50}px`; missile.style.top = `${600 - playerY - 40}px`;
         skyContainer.appendChild(missile);
-        playerMissiles.push({ element: missile, x: PLAYER_X + 50, y: playerY });
+        playerMissiles.push({ element: missile, x: currentPlayerX + 50, y: playerY });
     }
 
     function handleStart(e) { if (!isGameRunning || !isBossBattle || isStunned) return; isDragging = false; const clientY = e.clientY || e.touches[0].clientY; dragStartY = clientY; trainStartY = playerY; }
@@ -252,13 +275,13 @@ html_code = """
 
     function updatePlayerPosition() { playerTrain.style.bottom = `${playerY}px`; }
     function createCrowHTML() { return `<div class="crow-helmet"></div><div class="crow-head"></div><div class="crow-beak"></div><div class="crow-body"></div><div class="crow-wing"></div><div class="crow-eye"></div>`; }
-    function spawnCrow() { const element = document.createElement('div'); element.classList.add('crow'); if (isGalaxyMode) element.classList.add('space-mode'); element.innerHTML = createCrowHTML(); const startX = gameScreen.offsetWidth + 50; const startY = Math.random() * 200 + 350; element.style.left = `${startX}px`; element.style.bottom = `${startY}px`; skyContainer.appendChild(element); const targetX = PLAYER_X + 20; const targetY = BRIDGE_HEIGHT + 20; const speed = 4 + Math.random() * 2; const dx = targetX - startX; const dy = targetY - startY; const distance = Math.sqrt(dx*dx + dy*dy); crows.push({ element, x: startX, y: startY, vx: (dx/distance)*speed, vy: (dy/distance)*speed, state: 'attack' }); }
+    function spawnCrow() { const element = document.createElement('div'); element.classList.add('crow'); if (isGalaxyMode) element.classList.add('space-mode'); element.innerHTML = createCrowHTML(); const startX = gameScreen.offsetWidth + 50; const startY = Math.random() * 200 + 350; element.style.left = `${startX}px`; element.style.bottom = `${startY}px`; skyContainer.appendChild(element); const targetX = currentPlayerX + 20; const targetY = BRIDGE_HEIGHT + 20; const speed = 4 + Math.random() * 2; const dx = targetX - startX; const dy = targetY - startY; const distance = Math.sqrt(dx*dx + dy*dy); crows.push({ element, x: startX, y: startY, vx: (dx/distance)*speed, vy: (dy/distance)*speed, state: 'attack' }); }
     function createStolenScene(x, y) { const container = document.createElement('div'); container.classList.add('stolen-scene'); const crowDiv = document.createElement('div'); crowDiv.classList.add('crow'); if (isGalaxyMode) crowDiv.classList.add('space-mode'); crowDiv.innerHTML = createCrowHTML(); const trainDiv = document.createElement('div'); trainDiv.innerHTML = createTrainUnitHTML(true); trainDiv.style.position = 'absolute'; trainDiv.style.top = '20px'; trainDiv.style.left = '5px'; container.appendChild(crowDiv); container.appendChild(trainDiv); container.style.left = `${x}px`; container.style.bottom = `${y}px`; skyContainer.appendChild(container); stolenScenes.push({ element: container, x: x, y: y, vx: 3, vy: 5 }); }
     function createObstacle(left, width, type) { const element = document.createElement('div'); if (type === 'bridge') element.classList.add('bridge-part'); element.style.left = `${left}px`; element.style.width = `${width}px`; obstaclesContainer.appendChild(element); obstacles.push({ element, left, width, type }); if (type === 'bridge' && width > 150 && Math.random() < 0.35) createItem(left + width / 2); }
     function createItem(left) { const element = document.createElement('div'); element.classList.add('item'); element.style.left = `${left}px`; element.style.bottom = `${BRIDGE_HEIGHT + 30}px`; obstaclesContainer.appendChild(element); items.push({ element, left }); }
     function spawnNextObstacle() { const lastObstacle = obstacles[obstacles.length - 1]; const nextLeft = lastObstacle.left + lastObstacle.width; if (nextLeft < gameScreen.offsetWidth + SCROLL_SPEED * 20) { let type, width; if (lastObstacle.type === 'gap') { type = 'bridge'; width = Math.random() * 300 + 200; } else { type = Math.random() > 0.4 ? 'bridge' : 'gap'; width = type === 'bridge' ? Math.random() * 300 + 200 : Math.random() * 120 + 80; } createObstacle(nextLeft, width, type); } }
     function respawn() { if (isRespawning) return; isRespawning = true; carriageCount = 0; renderTrain(); setTimeout(() => { playerY = 600; playerVy = 0; updatePlayerPosition(); isRespawning = false; }, 1000); }
-    function showGetEffect() { const effect = document.createElement('div'); effect.classList.add('get-effect'); effect.textContent = 'CONNECT!'; effect.style.left = `${PLAYER_X}px`; effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; gameScreen.appendChild(effect); setTimeout(() => effect.remove(), 800); }
+    function showGetEffect() { const effect = document.createElement('div'); effect.classList.add('get-effect'); effect.textContent = 'CONNECT!'; effect.style.left = `${currentPlayerX}px`; effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; gameScreen.appendChild(effect); setTimeout(() => effect.remove(), 800); }
     function spawnSpaceObjects() { if (!isGalaxyMode) return; if (Math.random() < 0.003) { const rocket = document.createElement('div'); rocket.classList.add('rocket'); const directions = ['right', 'left', 'up', 'down', 'up-right', 'down-right', 'up-left', 'down-left']; const randomDir = directions[Math.floor(Math.random() * directions.length)]; rocket.classList.add(`rocket-${randomDir}`); rocket.innerHTML = '<div class="rocket-fire"></div><div class="rocket-body"></div><div class="rocket-fin top"></div><div class="rocket-fin bottom"></div><div class="rocket-window"></div>'; skyContainer.appendChild(rocket); setTimeout(() => rocket.remove(), 8000); } if (Math.random() < 0.008) { const shootingStar = document.createElement('div'); shootingStar.classList.add('shooting-star'); shootingStar.style.top = `${Math.random() * 200}px`; shootingStar.style.right = `${Math.random() * 200 - 200}px`; skyContainer.appendChild(shootingStar); setTimeout(() => shootingStar.remove(), 3000); } }
     function createExplosion(x, y) { const exp = document.createElement('div'); exp.classList.add('explosion'); exp.textContent = '💥'; exp.style.left = `${x}px`; exp.style.bottom = `${y}px`; skyContainer.appendChild(exp); setTimeout(() => exp.remove(), 500); }
     function applyStun() { isStunned = true; playerTrain.classList.add('stunned'); setTimeout(() => { isStunned = false; playerTrain.classList.remove('stunned'); }, 1000); }
@@ -266,13 +289,18 @@ html_code = """
     function gameLoop() {
         if (!isGameRunning) return;
 
-        // ★常に実行（滞留バグ修正：ボス戦でも連れ去り演出を動かす）★
-        stolenScenes.forEach((scene, index) => { scene.x += scene.vx; scene.y += scene.vy; scene.element.style.left = `${scene.x}px`; scene.element.style.bottom = `${scene.y}px`; if (scene.y > 800) { scene.element.remove(); stolenScenes.splice(index, 1); } });
+        // ★逆ループで安全に要素を削除★
+        for (let i = stolenScenes.length - 1; i >= 0; i--) {
+            const scene = stolenScenes[i];
+            scene.x += scene.vx; scene.y += scene.vy;
+            scene.element.style.left = `${scene.x}px`; scene.element.style.bottom = `${scene.y}px`;
+            if (scene.y > 800) { scene.element.remove(); stolenScenes.splice(i, 1); }
+        }
 
         if (isBossBattle) {
             if (!isStunned) { bossY += bossVy; if (bossY > 500 || bossY < 100) bossVy *= -1; bossElement.style.bottom = `${bossY}px`; }
             
-            // ボス攻撃頻度調整（少し減らす）
+            // アイテム・敵の生成（ボス戦用）
             if (Math.random() < 0.015) {
                 const bCrow = document.createElement('div'); bCrow.classList.add('crow', 'space-mode'); bCrow.innerHTML = createCrowHTML();
                 bCrow.style.left = `${gameScreen.offsetWidth - 100}px`; bCrow.style.bottom = `${bossY + 50}px`;
@@ -284,40 +312,89 @@ html_code = """
                 skyContainer.appendChild(item); items.push({ element: item, left: gameScreen.offsetWidth, y: parseFloat(item.style.bottom) });
             }
 
-            playerMissiles.forEach((m, i) => {
+            // プレイヤーミサイル（逆ループ）
+            for (let i = playerMissiles.length - 1; i >= 0; i--) {
+                const m = playerMissiles[i];
                 m.x += 10; m.element.style.left = `${m.x}px`;
-                if (m.x > gameScreen.offsetWidth - 140 && Math.abs(m.y - bossY) < 80) { m.element.remove(); playerMissiles.splice(i, 1); createExplosion(m.x, m.y); bossHP--; bossHpBar.style.width = `${(bossHP/MAX_BOSS_HP)*100}%`; if (bossHP <= 0) winGame(); }
-                else if (m.x > gameScreen.offsetWidth) { m.element.remove(); playerMissiles.splice(i, 1); }
-            });
+                if (m.x > gameScreen.offsetWidth - 140 && Math.abs(m.y - bossY) < 80) {
+                    m.element.remove(); playerMissiles.splice(i, 1); createExplosion(m.x, m.y);
+                    bossHP--; bossHpBar.style.width = `${(bossHP/MAX_BOSS_HP)*100}%`;
+                    if (bossHP <= 0) winGame();
+                } else if (m.x > gameScreen.offsetWidth) {
+                    m.element.remove(); playerMissiles.splice(i, 1);
+                }
+            }
 
-            bossCrows.forEach((b, i) => {
-                b.x -= 4; // カラス速度ダウン
-                b.element.style.left = `${b.x}px`; b.element.style.bottom = `${b.y}px`;
-                if (b.x < PLAYER_X + 50 && b.x > PLAYER_X && Math.abs(b.y - playerY) < 40 && !isStunned) {
+            // ボスカラス（逆ループ）
+            for (let i = bossCrows.length - 1; i >= 0; i--) {
+                const b = bossCrows[i];
+                b.x -= 4; b.element.style.left = `${b.x}px`; b.element.style.bottom = `${b.y}px`;
+                if (b.x < currentPlayerX + 50 && b.x > currentPlayerX && Math.abs(b.y - playerY) < 40 && !isStunned) {
                     b.element.remove(); bossCrows.splice(i, 1);
-                    if (carriageCount > 0) { carriageCount--; renderTrain(); createStolenScene(PLAYER_X, playerY); } else { applyStun(); }
-                } else if (b.x < -50) { b.element.remove(); bossCrows.splice(i, 1); }
-            });
+                    if (carriageCount > 0) {
+                        carriageCount--; renderTrain(); createStolenScene(currentPlayerX, playerY);
+                    } else { applyStun(); }
+                } else if (b.x < -50) {
+                    b.element.remove(); bossCrows.splice(i, 1);
+                }
+            }
 
-            items.forEach((item, index) => {
-                item.left -= 3; // アイテム速度ダウン
-                item.element.style.left = `${item.left}px`;
-                const itemY = parseFloat(item.element.style.bottom); 
-                if (item.left < PLAYER_X + 54 && item.left + 30 > PLAYER_X) { if (Math.abs(playerY - itemY) < 50 && !isStunned) { item.element.remove(); items.splice(index, 1); carriageCount++; renderTrain(); showGetEffect(); } }
-                if (item.left < -50) { item.element.remove(); items.splice(index, 1); }
-            });
+            // アイテム（逆ループ）
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                item.left -= 3; item.element.style.left = `${item.left}px`;
+                const itemY = item.y || parseFloat(item.element.style.bottom); // フォールバック
+                if (item.left < currentPlayerX + 54 && item.left + 30 > currentPlayerX) {
+                    if (Math.abs(playerY - itemY) < 50 && !isStunned) {
+                        item.element.remove(); items.splice(i, 1); carriageCount++; renderTrain(); showGetEffect();
+                    }
+                } else if (item.left < -50) {
+                    item.element.remove(); items.splice(i, 1);
+                }
+            }
 
         } else {
             // 通常モード
             if (!isRespawning) { playerVy += currentGravity; playerY -= playerVy; }
             if (carriageCount >= 1 && crows.length === 0 && !isRespawning && Math.random() < 0.005) spawnCrow();
             spawnSpaceObjects();
-            crows.forEach((crow, index) => { crow.x += crow.vx; crow.y += crow.vy; crow.element.style.left = `${crow.x}px`; crow.element.style.bottom = `${crow.y}px`; if (crow.state === 'attack') { const dx = (crow.x + 25) - (PLAYER_X + 27); const dy = (crow.y + 15) - (playerY + 20); if (Math.sqrt(dx*dx + dy*dy) < 40 && !isRespawning) { carriageCount--; renderTrain(); createStolenScene(PLAYER_X, playerY); crow.element.remove(); crows.splice(index, 1); return; } } if (crow.x < -100 || crow.y > 800 || crow.y < -50) { crow.element.remove(); crows.splice(index, 1); } });
-            let currentGround = null; obstacles.forEach((obs, index) => { obs.left -= SCROLL_SPEED; obs.element.style.left = `${obs.left}px`; if (PLAYER_X + 44 > obs.left && PLAYER_X + 10 < obs.left + obs.width) { if (obs.type === 'bridge') currentGround = obs; } if (obs.left + obs.width < -100) { obs.element.remove(); obstacles.splice(index, 1); } });
-            items.forEach((item, index) => { item.left -= SCROLL_SPEED; item.element.style.left = `${item.left}px`; if (item.left < PLAYER_X + 54 && item.left + 30 > PLAYER_X) { if (playerY < BRIDGE_HEIGHT + 70 && playerY + 40 > BRIDGE_HEIGHT + 30) { item.element.remove(); items.splice(index, 1); carriageCount++; renderTrain(); showGetEffect(); } } if (item.left < -50) { item.element.remove(); items.splice(index, 1); } });
+            
+            for (let i = crows.length - 1; i >= 0; i--) {
+                const crow = crows[i];
+                crow.x += crow.vx; crow.y += crow.vy; crow.element.style.left = `${crow.x}px`; crow.element.style.bottom = `${crow.y}px`;
+                if (crow.state === 'attack') {
+                    const dx = (crow.x + 25) - (currentPlayerX + 27); const dy = (crow.y + 15) - (playerY + 20);
+                    if (Math.sqrt(dx*dx + dy*dy) < 40 && !isRespawning) { carriageCount--; renderTrain(); createStolenScene(currentPlayerX, playerY); crow.element.remove(); crows.splice(i, 1); continue; }
+                }
+                if (crow.x < -100 || crow.y > 800 || crow.y < -50) { crow.element.remove(); crows.splice(i, 1); }
+            }
+            
+            // 障害物＆アイテム（通常）
+            let currentGround = null;
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.left -= SCROLL_SPEED; obs.element.style.left = `${obs.left}px`;
+                if (currentPlayerX + 44 > obs.left && currentPlayerX + 10 < obs.left + obs.width) { if (obs.type === 'bridge') currentGround = obs; }
+                if (obs.left + obs.width < -100) { obs.element.remove(); obstacles.splice(i, 1); }
+            }
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                item.left -= SCROLL_SPEED; item.element.style.left = `${item.left}px`;
+                if (item.left < currentPlayerX + 54 && item.left + 30 > currentPlayerX) {
+                    if (playerY < BRIDGE_HEIGHT + 70 && playerY + 40 > BRIDGE_HEIGHT + 30) { item.element.remove(); items.splice(i, 1); carriageCount++; renderTrain(); showGetEffect(); }
+                } else if (item.left < -50) { item.element.remove(); items.splice(i, 1); }
+            }
             spawnNextObstacle();
-            if (!isRespawning) { if (currentGround && playerY <= BRIDGE_HEIGHT && playerY > BRIDGE_HEIGHT - 30 && playerVy >= 0) { if (!isGrounded) { playerTrain.classList.remove('poyo'); playerTrain.classList.add('landing'); setTimeout(() => { playerTrain.classList.remove('landing'); playerTrain.classList.add('poyo'); }, 400); } playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true; } else if (!currentGround && playerY <= BRIDGE_HEIGHT && isGrounded) { isGrounded = false; } if (playerY < -100) respawn(); }
+            
+            if (!isRespawning) {
+                if (currentGround && playerY <= BRIDGE_HEIGHT && playerY > BRIDGE_HEIGHT - 30 && playerVy >= 0) {
+                    if (!isGrounded) { playerTrain.classList.remove('poyo'); playerTrain.classList.add('landing'); setTimeout(() => { playerTrain.classList.remove('landing'); playerTrain.classList.add('poyo'); }, 400); }
+                    playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true;
+                } else if (!currentGround && playerY <= BRIDGE_HEIGHT && isGrounded) { isGrounded = false; }
+                if (playerY < -100) respawn();
+            }
         }
+        
         updatePlayerPosition(); animationId = requestAnimationFrame(gameLoop);
     }
 
