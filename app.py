@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 コロコロ走る、豆粒電車だっち 🍄")
-st.write("ボディが短くなって、黄色い小さいタイヤが4つ付いたよ！")
+st.title("🚂 地面にピタッ！豆粒電車だっち 🍄")
+st.write("タイヤが小さくなって、地面をしっかり走ってるよ！")
 
 # HTML/CSSコード
 html_code = """
@@ -63,6 +63,7 @@ html_code = """
         background-position: bottom;
         animation: scrollBridge 3s linear infinite;
     }
+    /* 橋の上の線路部分（高さ30px） */
     .bridge::before {
         content: '';
         position: absolute;
@@ -74,11 +75,12 @@ html_code = """
         border-bottom: 8px solid #4e342e;
     }
 
-    /* --- 電車（さらに短く、コロッと） --- */
+    /* --- 電車 --- */
     .train-container {
         position: absolute;
-        bottom: 295px; /* タイヤがついたので位置微調整 */
-        width: 50px;  /* 幅を短くして正方形に近づけた！ */
+        /* 橋の高さ(280px) + 線路の高さ(30px) - タイヤの高さ(約10px) で調整 */
+        bottom: 300px; /* 地面に接地するように位置を調整したよ！ */
+        width: 50px;
         height: 40px;
         z-index: 10;
         animation: poyoPoyo 0.5s steps(3) infinite alternate;
@@ -93,7 +95,7 @@ html_code = """
         border: 2px solid #004D40;
         position: relative;
         display: flex;
-        justify-content: space-evenly; /* 窓の間隔調整 */
+        justify-content: space-evenly;
         align-items: center;
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
     }
@@ -104,13 +106,13 @@ html_code = """
         position: absolute;
         top: -6px;
         left: 3px;
-        width: 44px; /* ボディに合わせて短く */
+        width: 44px;
         height: 6px;
         background-color: #004D40;
         border-radius: 3px 3px 0 0;
     }
 
-    /* 窓（2つに減らしたよ、ボディが短いからね） */
+    /* 窓 */
     .window {
         width: 10px;
         height: 10px;
@@ -119,41 +121,41 @@ html_code = """
         border-radius: 2px;
     }
 
-    /* タイヤコンテナ（4つのタイヤを配置） */
+    /* タイヤコンテナ */
     .wheels-container {
         position: absolute;
-        bottom: 0px; /* ボディの下 */
+        bottom: 0px;
         width: 100%;
-        height: 12px;
+        height: 10px; /* タイヤに合わせて少し低く */
         display: flex;
-        justify-content: space-between; /* 左右に分ける */
-        padding: 0 2px;
+        justify-content: space-between;
+        padding: 0 4px; /* 左右の余白を調整して配置を整えた */
         box-sizing: border-box;
     }
 
-    /* 左右のタイヤグループ */
+    /* 左右のタイヤグループ（きゅっとくっつける） */
     .wheel-group {
         display: flex;
-        gap: 2px; /* タイヤ同士の隙間 */
+        gap: 1px; /* タイヤ間の隙間を狭くしたよ！ */
     }
 
-    /* 黄色い小さいタイヤ */
+    /* 黄色い小さいタイヤ（さらに小さく） */
     .wheel {
-        width: 10px;
-        height: 10px;
-        background-color: #FFC107; /* かわいい黄色 */
-        border: 1px solid #FF6F00; /* オレンジの枠でくっきり */
+        width: 8px;  /* サイズダウン */
+        height: 8px; /* サイズダウン */
+        background-color: #FFC107;
+        border: 1px solid #FF6F00;
         border-radius: 50%;
         animation: spinWheels 0.5s linear infinite;
         position: relative;
     }
     
-    /* タイヤの回転がわかるマーク */
+    /* タイヤの回転マーク */
     .wheel::after {
         content: '';
         position: absolute;
-        top: 2px;
-        left: 4px;
+        top: 1px; /* 位置調整 */
+        left: 3px; /* 位置調整 */
         width: 2px;
         height: 2px;
         background-color: #FF6F00;
@@ -184,8 +186,8 @@ html_code = """
     }
     @keyframes poyoPoyo {
         0% { transform: translateY(0) scale(1, 1); }
-        50% { transform: translateY(-2px) scale(1.05, 0.95); } /* コロコロ感アップ */
-        100% { transform: translateY(2px) scale(0.95, 1.05); }
+        50% { transform: translateY(-1px) scale(1.05, 0.95); } /* 上下の動きを控えめに */
+        100% { transform: translateY(1px) scale(0.95, 1.05); } /* 上下の動きを控えめに */
     }
     @keyframes spinWheels {
         0% { transform: rotate(0deg); }
@@ -232,4 +234,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=600)
 
-st.write("コロコロしてて、おもちゃみたいで可愛いだっち！🍄")
+st.write("タイヤがきゅっとなって、地面をしっかり捉えてる感じが出たかな？🍄")
