@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 シンプル可愛い！2輪の豆粒電車だっち 🍄")
-st.write("タイヤが2つになって、さらに可愛さアップ！よちよち走るよ！")
+st.title("🚂 ずんぐり可愛い！車体低めの豆粒電車だっち 🍄")
+st.write("車体を少し下げて、タイヤが半分隠れるようにしたよ！ずんぐり感アップ！")
 
 # HTML/CSSコード
 html_code = """
@@ -79,8 +79,7 @@ html_code = """
     /* --- 電車コンテナ --- */
     .train-container {
         position: absolute;
-        /* 橋の高さ(280px)に合わせて接地 */
-        bottom: 280px; 
+        bottom: 280px; /* 橋の高さに合わせて接地 */
         width: 54px;
         height: 40px;
         z-index: 10;
@@ -96,13 +95,15 @@ html_code = """
         border-radius: 6px;
         border: 2px solid #004D40;
         position: absolute;
-        bottom: 9px; /* タイヤの高さ分浮かせる */
+        /* 変更点：タイヤの高さ(9px)の半分(4.5px)だけ下げる */
+        bottom: 4.5px; 
         left: 0;
         display: flex;
         justify-content: space-evenly;
         align-items: center;
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
         box-sizing: border-box;
+        z-index: 2; /* タイヤより手前に表示 */
     }
 
     /* 屋根 */
@@ -133,17 +134,18 @@ html_code = """
         width: 100%;
         height: 9px;
         display: flex;
-        justify-content: space-between; /* 左右に配置 */
-        padding: 0 8px; /* タイヤの位置調整（少し内側に） */
+        justify-content: space-between;
+        padding: 0 8px;
         box-sizing: border-box;
+        z-index: 1; /* ボディより後ろに表示 */
     }
 
-    /* タイヤ（2つだけ！回転なし） */
+    /* タイヤ（2つ） */
     .wheel {
-        width: 9px; /* 1つになったので気持ち大きく9pxにしてみた */
+        width: 9px;
         height: 9px;
-        background-color: #FFC107; /* 黄色 */
-        border: 1.5px solid #FF6F00; /* オレンジ枠 */
+        background-color: #FFC107;
+        border: 1.5px solid #FF6F00;
         border-radius: 50%;
     }
     
@@ -158,6 +160,7 @@ html_code = """
         border-radius: 50%;
         opacity: 0;
         animation: smoke 1s ease-out infinite;
+        z-index: 0;
     }
 
     /* --- アニメーション --- */
@@ -194,14 +197,14 @@ html_code = """
 
         <div class="train-container">
             <div class="smoke"></div>
+            <div class="wheels-container">
+                <div class="wheel"></div>
+                <div class="wheel"></div>
+            </div>
             <div class="train-body">
                 <div class="window"></div>
                 <div class="window"></div>
                 <div class="window"></div>
-            </div>
-            <div class="wheels-container">
-                <div class="wheel"></div>
-                <div class="wheel"></div>
             </div>
         </div>
     </div>
@@ -213,4 +216,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=600)
 
-st.write("左右にちょこんとついたタイヤが可愛いでしょ？🍄")
+st.write("タイヤが半分隠れて、さらに愛くるしくなっただっち！🍄")
