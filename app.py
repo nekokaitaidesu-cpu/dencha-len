@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 ぽよぽよ走る電車だっち 🍄")
-st.write("CSSだけで描いた電車が、橋の上をガタンゴトン走るよ！")
+st.title("🚂 広野をゆく、ぽよぽよ電車だっち 🍄")
+st.write("電車が小さくなって、背景が広くなったよ！タイヤもかっこよくなっただっち！")
 
 # HTML/CSSコード
 html_code = """
@@ -18,8 +18,8 @@ html_code = """
     /* 全体のコンテナ */
     .scene {
         width: 100%;
-        height: 400px;
-        background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%); /* 空のグラデーション */
+        height: 450px; /* 高さを少し広げた */
+        background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 80%, #f0e68c 100%); /* 空の下の方を少し黄色っぽくして地平線感を出す */
         position: relative;
         overflow: hidden;
         border-radius: 15px;
@@ -29,13 +29,13 @@ html_code = """
         align-items: center;
     }
 
-    /* 雲（背景装飾） */
+    /* 雲（背景装飾）- 少しゆっくりに */
     .cloud {
         position: absolute;
         top: 50px;
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 50px;
-        animation: moveClouds 15s linear infinite;
+        animation: moveClouds 25s linear infinite; /* ゆっくり */
     }
     .cloud::after, .cloud::before {
         content: '';
@@ -43,49 +43,47 @@ html_code = """
         background: inherit;
         border-radius: 50%;
     }
-    .cloud.c1 { width: 100px; height: 40px; top: 40px; left: -120px; animation-duration: 20s; }
-    .cloud.c1::after { width: 50px; height: 50px; top: -25px; left: 15px; }
-    .cloud.c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
+    .cloud.c1 { width: 120px; height: 45px; top: 60px; left: -150px; animation-duration: 30s; }
+    .cloud.c1::after { width: 60px; height: 60px; top: -30px; left: 20px; }
+    .cloud.c1::before { width: 50px; height: 50px; top: -20px; left: 60px; }
 
-    .cloud.c2 { width: 80px; height: 30px; top: 80px; left: -100px; animation-duration: 12s; animation-delay: 5s; }
-    .cloud.c2::after { width: 40px; height: 40px; top: -20px; left: 10px; }
+    .cloud.c2 { width: 90px; height: 35px; top: 120px; left: -100px; animation-duration: 20s; animation-delay: 8s; }
+    .cloud.c2::after { width: 45px; height: 45px; top: -22px; left: 12px; }
 
     /* 橋（動く背景） */
     .bridge {
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 200%; /* ループさせるために広く */
-        height: 150px;
-        background-color: #8B4513; /* 茶色 */
-        /* アーチを描くためのグラデーション */
+        width: 200%;
+        height: 180px; /* 橋を大きく見せる */
+        background-color: #8B4513;
+        /* アーチを大きく */
         background-image: radial-gradient(circle at bottom center, transparent 65%, #A0522D 66%);
-        background-size: 100px 100px; /* アーチのサイズ */
+        background-size: 150px 150px; /* アーチのサイズアップ */
         background-repeat: repeat-x;
         background-position: bottom;
-        animation: scrollBridge 1.5s linear infinite;
+        animation: scrollBridge 2.5s linear infinite; /* 電車が小さいので少しゆっくりに見せる */
     }
     
-    /* 橋の上部（線路部分） */
     .bridge::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 20px;
+        height: 25px;
         background: #654321;
-        border-bottom: 5px solid #4e342e;
+        border-bottom: 6px solid #4e342e;
     }
 
-    /* 電車本体のコンテナ */
+    /* --- 電車（小さく変更） --- */
     .train-container {
         position: absolute;
-        bottom: 155px; /* 橋の上に配置 */
-        width: 160px;
-        height: 100px;
+        bottom: 190px; /* 橋の上に配置（位置調整） */
+        width: 90px;  /* 幅を小さく */
+        height: 60px; /* 高さを小さく */
         z-index: 10;
-        /* ぽよぽよさせるアニメーション（3パターンのコマ送り風） */
         animation: poyoPoyo 0.6s steps(3) infinite alternate;
     }
 
@@ -93,59 +91,63 @@ html_code = """
     .train-body {
         width: 100%;
         height: 70%;
-        background-color: #4DB6AC; /* 緑っぽい色 */
-        border-radius: 15px;
-        border: 4px solid #004D40;
+        background-color: #4DB6AC;
+        border-radius: 10px; /* 角丸を小さく */
+        border: 3px solid #004D40; /* 線を細く */
         position: relative;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+        box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
     }
 
     /* 屋根 */
     .train-body::before {
         content: '';
         position: absolute;
-        top: -10px;
-        left: 10px;
-        width: 140px;
-        height: 10px;
+        top: -8px;
+        left: 5px;
+        width: 80px;
+        height: 8px;
         background-color: #004D40;
-        border-radius: 5px 5px 0 0;
+        border-radius: 4px 4px 0 0;
     }
 
     /* 窓 */
     .window {
-        width: 30px;
-        height: 30px;
-        background-color: #FFF9C4; /* 薄い黄色 */
-        border: 3px solid #004D40;
-        border-radius: 5px;
+        width: 18px; /* 小さく */
+        height: 18px; /* 小さく */
+        background-color: #FFF9C4;
+        border: 2px solid #004D40; /* 細く */
+        border-radius: 4px;
     }
 
-    /* タイヤ */
+    /* タイヤ周りのコンテナ */
     .wheels-container {
         position: absolute;
-        bottom: 5px;
+        bottom: 2px;
         width: 100%;
+        height: 30px;
         display: flex;
         justify-content: space-between;
-        padding: 0 15px;
+        padding: 0 8px;
         box-sizing: border-box;
+        pointer-events: none; /* 連結棒が邪魔しないように */
     }
 
+    /* --- 新しいタイヤのデザイン --- */
     .wheel {
-        width: 35px;
-        height: 35px;
-        background-color: #333;
+        width: 24px;
+        height: 24px;
+        background-color: #222; /* 黒 */
         border-radius: 50%;
-        border: 3px dashed #999; /* 回転がわかるように破線 */
-        animation: spinWheels 0.5s linear infinite;
+        border: 3px dashed #555; /* ギザギザ感を出す */
+        animation: spinWheels 0.6s linear infinite;
         position: relative;
+        z-index: 1; /* 連結棒より後ろ */
     }
     
-    /* タイヤの中央 */
+    /* タイヤの中央（黄色い装飾） */
     .wheel::after {
         content: '';
         position: absolute;
@@ -154,17 +156,33 @@ html_code = """
         transform: translate(-50%, -50%);
         width: 10px;
         height: 10px;
-        background-color: #999;
+        background-color: #FFD700; /* 黄色 */
+        border: 2px solid #B8860B;
         border-radius: 50%;
     }
 
-    /* 煙（おまけ） */
+    /* --- 黄色い連結棒（ロッド） --- */
+    .connecting-rod {
+        position: absolute;
+        bottom: 10px; /* タイヤの中心付近 */
+        left: 14px;   /* 位置調整 */
+        width: 46px;  /* タイヤ間をつなぐ長さ */
+        height: 7px;
+        background-color: #FFD700; /* 黄色 */
+        border: 2px solid #B8860B;
+        border-radius: 4px;
+        z-index: 2; /* タイヤより手前 */
+        /* 電車のぽよぽよに合わせて動く */
+        animation: rodMove 0.6s steps(3) infinite alternate;
+    }
+
+    /* 煙（小さく調整） */
     .smoke {
         position: absolute;
-        top: -20px;
-        right: 20px;
-        width: 20px;
-        height: 20px;
+        top: -15px;
+        right: 10px;
+        width: 15px;
+        height: 15px;
         background: white;
         border-radius: 50%;
         opacity: 0;
@@ -173,35 +191,37 @@ html_code = """
 
     /* --- アニメーション定義 --- */
 
-    /* 橋が左に流れる（電車が走ってるように見える） */
     @keyframes scrollBridge {
         0% { transform: translateX(0); }
-        100% { transform: translateX(-100px); } /* アーチ1個分移動 */
+        100% { transform: translateX(-150px); } /* アーチのサイズに合わせて調整 */
     }
 
-    /* 雲が流れる */
     @keyframes moveClouds {
-        0% { transform: translateX(110%); }
-        100% { transform: translateX(-150%); }
+        0% { transform: translateX(120%); }
+        100% { transform: translateX(-180%); }
     }
 
-    /* 電車がぽよぽよする（コマ送り風） */
     @keyframes poyoPoyo {
         0% { transform: translateY(0) scale(1, 1); }
-        50% { transform: translateY(-3px) scale(1.02, 0.98); }
-        100% { transform: translateY(3px) scale(0.98, 1.02); }
+        50% { transform: translateY(-2px) scale(1.03, 0.97); } /* 動きを少し控えめに */
+        100% { transform: translateY(2px) scale(0.97, 1.03); }
     }
 
-    /* タイヤの回転 */
     @keyframes spinWheels {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
     
-    /* 煙のアニメーション */
+    /* 連結棒のアニメーション（電車の動きに合わせる） */
+    @keyframes rodMove {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-1px); }
+        100% { transform: translateY(1px); }
+    }
+    
     @keyframes smoke {
         0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); }
-        100% { opacity: 0; transform: scale(2) translate(-20px, -30px); }
+        100% { opacity: 0; transform: scale(1.8) translate(-15px, -25px); }
     }
 
 </style>
@@ -222,8 +242,9 @@ html_code = """
                 <div class="window"></div>
             </div>
             <div class="wheels-container">
-                <div class="wheel"></div>
-                <div class="wheel"></div>
+                <div class="wheel left"></div>
+                <div class="wheel right"></div>
+                <div class="connecting-rod"></div>
             </div>
         </div>
     </div>
@@ -232,8 +253,7 @@ html_code = """
 </html>
 """
 
-# HTMLを描画
-components.html(html_code, height=450)
+# HTMLを描画（高さを少し大きく確保）
+components.html(html_code, height=500)
 
-st.write("電車はCSSで作ってるから、画像ファイルはいらないよ！")
-st.write("コードの中の `poyoPoyo` アニメーションの `steps(3)` が、カクカクしたコマ送りの可愛さを出してるポイントだっち🍄")
+st.write("ちっちゃい電車が一生懸命走ってる感じ、出てるかな？🍄")
