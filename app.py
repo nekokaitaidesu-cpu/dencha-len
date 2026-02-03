@@ -1,334 +1,239 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Bridge Cross Game", layout="wide")
+# ページ設定
+st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
-st.title("🚃 ギリギリ橋渡しゲームだっち 🍄")
-st.write("マウスを押して橋を伸ばすっち！離すと橋が倒れるよ。長さがピッタリじゃないと…ポトッ😱")
+# タイトル
+st.title("🚂 ぽよぽよ走る電車だっち 🍄")
+st.write("CSSだけで描いた電車が、橋の上をガタンゴトン走るよ！")
 
-# ゲームの本体（HTML/CSS/JS）
+# HTML/CSSコード
 html_code = """
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap');
-
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: #f0f8ff; /* 空の色 */
-        font-family: 'M PLUS Rounded 1c', sans-serif;
-        overflow: hidden;
-        user-select: none;
-        touch-action: manipulation;
-    }
-    #game-container {
-        position: relative;
+    /* 全体のコンテナ */
+    .scene {
         width: 100%;
         height: 400px;
-        background: linear-gradient(#87CEEB, #E0F7FA);
+        background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%); /* 空のグラデーション */
+        position: relative;
         overflow: hidden;
         border-radius: 15px;
-        border: 4px solid #333;
-        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-    
-    /* 崖（柱）のデザイン - 画像の茶色いレンガ風 */
-    .pillar {
+
+    /* 雲（背景装飾） */
+    .cloud {
+        position: absolute;
+        top: 50px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50px;
+        animation: moveClouds 15s linear infinite;
+    }
+    .cloud::after, .cloud::before {
+        content: '';
+        position: absolute;
+        background: inherit;
+        border-radius: 50%;
+    }
+    .cloud.c1 { width: 100px; height: 40px; top: 40px; left: -120px; animation-duration: 20s; }
+    .cloud.c1::after { width: 50px; height: 50px; top: -25px; left: 15px; }
+    .cloud.c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
+
+    .cloud.c2 { width: 80px; height: 30px; top: 80px; left: -100px; animation-duration: 12s; animation-delay: 5s; }
+    .cloud.c2::after { width: 40px; height: 40px; top: -20px; left: 10px; }
+
+    /* 橋（動く背景） */
+    .bridge {
         position: absolute;
         bottom: 0;
-        background-color: #8B4513;
-        background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
-        border-top: 5px solid #5D4037;
-        z-index: 2;
-    }
-
-    /* プレイヤー（バス/電車） */
-    #player {
-        position: absolute;
-        bottom: 0; /* 柱の上に配置 */
-        width: 40px;
-        height: 40px;
-        font-size: 30px;
-        text-align: center;
-        line-height: 40px;
-        z-index: 3;
-        transition: transform 0.5s linear; /* ぬるぬる動く指定 */
-    }
-
-    /* 橋（棒） */
-    #bridge {
-        position: absolute;
-        bottom: 0; /* 柱の高さに合わせる JSで調整 */
-        width: 4px;
-        background-color: #333;
-        transform-origin: bottom right; /* 右下を中心に回転 */
-        transform: rotate(0deg);
-        z-index: 1;
-        display: none;
-    }
-
-    /* 落ちる時のアニメーション */
-    @keyframes fall {
-        0% { transform: translateY(0) rotate(0deg); }
-        100% { transform: translateY(300px) rotate(45deg); opacity: 0; }
-    }
-    .falling {
-        animation: fall 0.8s forwards;
-    }
-
-    /* メッセージ表示 */
-    #message {
-        position: absolute;
-        top: 20%;
-        width: 100%;
-        text-align: center;
-        font-size: 24px;
-        color: #333;
-        pointer-events: none;
-        text-shadow: 2px 2px 0px white;
+        left: 0;
+        width: 200%; /* ループさせるために広く */
+        height: 150px;
+        background-color: #8B4513; /* 茶色 */
+        /* アーチを描くためのグラデーション */
+        background-image: radial-gradient(circle at bottom center, transparent 65%, #A0522D 66%);
+        background-size: 100px 100px; /* アーチのサイズ */
+        background-repeat: repeat-x;
+        background-position: bottom;
+        animation: scrollBridge 1.5s linear infinite;
     }
     
-    .score-board {
+    /* 橋の上部（線路部分） */
+    .bridge::before {
+        content: '';
         position: absolute;
-        top: 10px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background: #654321;
+        border-bottom: 5px solid #4e342e;
+    }
+
+    /* 電車本体のコンテナ */
+    .train-container {
+        position: absolute;
+        bottom: 155px; /* 橋の上に配置 */
+        width: 160px;
+        height: 100px;
+        z-index: 10;
+        /* ぽよぽよさせるアニメーション（3パターンのコマ送り風） */
+        animation: poyoPoyo 0.6s steps(3) infinite alternate;
+    }
+
+    /* 電車のボディ */
+    .train-body {
+        width: 100%;
+        height: 70%;
+        background-color: #4DB6AC; /* 緑っぽい色 */
+        border-radius: 15px;
+        border: 4px solid #004D40;
+        position: relative;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    }
+
+    /* 屋根 */
+    .train-body::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        width: 140px;
+        height: 10px;
+        background-color: #004D40;
+        border-radius: 5px 5px 0 0;
+    }
+
+    /* 窓 */
+    .window {
+        width: 30px;
+        height: 30px;
+        background-color: #FFF9C4; /* 薄い黄色 */
+        border: 3px solid #004D40;
+        border-radius: 5px;
+    }
+
+    /* タイヤ */
+    .wheels-container {
+        position: absolute;
+        bottom: 5px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
+
+    .wheel {
+        width: 35px;
+        height: 35px;
+        background-color: #333;
+        border-radius: 50%;
+        border: 3px dashed #999; /* 回転がわかるように破線 */
+        animation: spinWheels 0.5s linear infinite;
+        position: relative;
+    }
+    
+    /* タイヤの中央 */
+    .wheel::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 10px;
+        height: 10px;
+        background-color: #999;
+        border-radius: 50%;
+    }
+
+    /* 煙（おまけ） */
+    .smoke {
+        position: absolute;
+        top: -20px;
         right: 20px;
-        font-size: 20px;
-        color: #333;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation: smoke 1s ease-out infinite;
+    }
+
+    /* --- アニメーション定義 --- */
+
+    /* 橋が左に流れる（電車が走ってるように見える） */
+    @keyframes scrollBridge {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100px); } /* アーチ1個分移動 */
+    }
+
+    /* 雲が流れる */
+    @keyframes moveClouds {
+        0% { transform: translateX(110%); }
+        100% { transform: translateX(-150%); }
+    }
+
+    /* 電車がぽよぽよする（コマ送り風） */
+    @keyframes poyoPoyo {
+        0% { transform: translateY(0) scale(1, 1); }
+        50% { transform: translateY(-3px) scale(1.02, 0.98); }
+        100% { transform: translateY(3px) scale(0.98, 1.02); }
+    }
+
+    /* タイヤの回転 */
+    @keyframes spinWheels {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* 煙のアニメーション */
+    @keyframes smoke {
+        0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); }
+        100% { opacity: 0; transform: scale(2) translate(-20px, -30px); }
     }
 
 </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="score" class="score-board">Score: 0</div>
-    <div id="message">画面を長押しして橋を伸ばすっち！</div>
-    
-    <div id="bridge"></div>
-    <div id="player">🚃</div>
-</div>
-
-<script>
-    const container = document.getElementById('game-container');
-    const player = document.getElementById('player');
-    const bridge = document.getElementById('bridge');
-    const msg = document.getElementById('message');
-    const scoreEl = document.getElementById('score');
-
-    let pillarHeight = 150; // 崖の高さ
-    let startPillarWidth = 60;
-    let gameStatus = 'ready'; // ready, growing, rotating, moving, falling, reset
-    let bridgeHeight = 0;
-    let growSpeed = 4;
-    let animationId;
-    let score = 0;
-    
-    // 最初の柱とターゲットの柱
-    let currentPillar = createPillar(0, startPillarWidth);
-    let targetPillar = createTargetPillar();
-
-    // プレイヤーの初期位置
-    let playerX = startPillarWidth - 40; // 右端に寄せる
-    updatePlayerPos();
-
-    function createPillar(left, width) {
-        const p = document.createElement('div');
-        p.className = 'pillar';
-        p.style.width = width + 'px';
-        p.style.height = pillarHeight + 'px';
-        p.style.left = left + 'px';
-        container.appendChild(p);
-        return { el: p, left: left, width: width };
-    }
-
-    function createTargetPillar() {
-        // ランダムな距離と幅
-        const dist = 50 + Math.random() * 150; 
-        const width = 40 + Math.random() * 60;
-        const left = currentPillar.left + currentPillar.width + dist;
-        return createPillar(left, width);
-    }
-
-    function updatePlayerPos() {
-        player.style.left = playerX + 'px';
-        player.style.bottom = pillarHeight + 'px';
-    }
-
-    // マウス/タッチイベント
-    container.addEventListener('mousedown', startGrow);
-    container.addEventListener('touchstart', startGrow);
-    container.addEventListener('mouseup', stopGrow);
-    container.addEventListener('touchend', stopGrow);
-
-    function startGrow(e) {
-        if (e.type === 'touchstart') e.preventDefault();
-        if (gameStatus !== 'ready') return;
+    <div class="scene">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
         
-        gameStatus = 'growing';
-        msg.innerText = "伸ばすっち…！";
-        
-        // 橋の初期設定
-        bridge.style.display = 'block';
-        bridge.style.height = '0px';
-        bridge.style.left = (currentPillar.left + currentPillar.width - 4) + 'px'; // 柱の右端
-        bridge.style.bottom = pillarHeight + 'px';
-        bridge.style.transform = 'rotate(0deg)';
-        bridgeHeight = 0;
+        <div class="bridge"></div>
 
-        growLoop();
-    }
-
-    function growLoop() {
-        if (gameStatus !== 'growing') return;
-        bridgeHeight += growSpeed;
-        bridge.style.height = bridgeHeight + 'px';
-        animationId = requestAnimationFrame(growLoop);
-    }
-
-    function stopGrow() {
-        if (gameStatus !== 'growing') return;
-        gameStatus = 'rotating';
-        cancelAnimationFrame(animationId);
-        
-        msg.innerText = "倒れるっち！";
-        // CSS transitionで回転
-        bridge.style.transition = 'transform 0.5s ease-in';
-        bridge.style.transform = 'rotate(90deg)';
-
-        setTimeout(() => {
-            checkResult();
-        }, 500); // 回転アニメーションの時間待つ
-    }
-
-    function checkResult() {
-        bridge.style.transition = ''; // transitionリセット
-        
-        // 橋の長さ（倒れたら幅になる）
-        const bridgeLen = bridgeHeight;
-        
-        // ギャップの距離
-        const gapStart = targetPillar.left - (currentPillar.left + currentPillar.width);
-        const gapEnd = gapStart + targetPillar.width;
-
-        // 判定
-        if (bridgeLen >= gapStart && bridgeLen <= gapEnd) {
-            // 成功！
-            movePlayerSuccess(bridgeLen);
-        } else {
-            // 失敗…
-            movePlayerFail(bridgeLen);
-        }
-    }
-
-    function movePlayerSuccess(distance) {
-        gameStatus = 'moving';
-        msg.innerText = "ぴゅー💨";
-        
-        // 次の柱の上まで移動
-        const nextX = targetPillar.left + targetPillar.width - 40;
-        const moveDist = nextX - playerX;
-        
-        // CSSでぬるぬる移動
-        player.style.transition = `left 1.0s linear`;
-        playerX = nextX;
-        player.style.left = playerX + 'px';
-
-        setTimeout(() => {
-            score++;
-            scoreEl.innerText = 'Score: ' + score;
-            msg.innerText = "やったっち！🍄";
-            nextLevel();
-        }, 1000);
-    }
-
-    function movePlayerFail(distance) {
-        gameStatus = 'moving';
-        
-        // 橋の先端、または次の柱の手前まで移動
-        let targetX = currentPillar.left + currentPillar.width + distance;
-        
-        // 橋が短すぎる場合は橋の先端へ。長すぎる場合も橋の先端へ（そして落ちる）
-        // プレイヤーの動き
-        player.style.transition = `left 0.8s linear`;
-        playerX = targetX; 
-        player.style.left = playerX + 'px';
-
-        setTimeout(() => {
-            msg.innerText = "ポトッ…😢";
-            player.classList.add('falling'); // 落ちるアニメーション
-            bridge.style.transform = 'rotate(180deg)'; // 橋もブラ〜ンとなる
-            bridge.style.transition = 'transform 0.5s ease-in';
-            
-            setTimeout(() => {
-                alert('ゲームオーバーだっち！ Score: ' + score);
-                location.reload(); // リロードしてリセット
-            }, 1000);
-        }, 800);
-    }
-
-    function nextLevel() {
-        // 画面全体を左にスクロール（柱を移動）
-        gameStatus = 'reset';
-        
-        // 現在の柱を削除対象に
-        const oldPillar = currentPillar.el;
-        
-        // 新しい基準位置計算
-        const shiftX = targetPillar.left; 
-
-        // アニメーションで全体を左に寄せるのは少し複雑なので
-        // 簡易的にDOMを再生成してリセットする
-        
-        container.removeChild(oldPillar);
-        bridge.style.display = 'none';
-        bridge.style.height = '0px';
-        bridge.style.transform = 'rotate(0deg)';
-
-        // ターゲットだった柱を現在の柱にする
-        currentPillar = targetPillar;
-        
-        // 位置調整（左端に寄せるアニメーションっぽく見せる）
-        // ここでは簡易的に座標を更新して、新しいターゲットを作る
-        
-        // すべての柱を左にシフト
-        const shiftAmount = currentPillar.left;
-        
-        const pillars = document.querySelectorAll('.pillar');
-        pillars.forEach(p => {
-            let currentL = parseInt(p.style.left);
-            p.style.transition = 'left 0.5s ease';
-            p.style.left = (currentL - shiftAmount) + 'px';
-        });
-        
-        // プレイヤーもシフト
-        player.style.transition = 'left 0.5s ease';
-        playerX -= shiftAmount;
-        player.style.left = playerX + 'px';
-        
-        // データ上の位置も更新
-        currentPillar.left = 0;
-
-        // 新しいターゲット作成（画面外右側に作って入ってくるようにする）
-        setTimeout(() => {
-             player.style.transition = ''; // transition解除
-             const pillars = document.querySelectorAll('.pillar');
-             pillars.forEach(p => p.style.transition = '');
-             
-             targetPillar = createTargetPillar();
-             gameStatus = 'ready';
-             msg.innerText = "次へGOだっち！";
-        }, 500);
-    }
-</script>
+        <div class="train-container">
+            <div class="smoke"></div>
+            <div class="train-body">
+                <div class="window"></div>
+                <div class="window"></div>
+                <div class="window"></div>
+            </div>
+            <div class="wheels-container">
+                <div class="wheel"></div>
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
 """
 
-# Streamlitに埋め込む
+# HTMLを描画
 components.html(html_code, height=450)
 
-st.write("※ 画面を長押しすると橋が伸びるよ。離すと倒れるっち！")
+st.write("電車はCSSで作ってるから、画像ファイルはいらないよ！")
+st.write("コードの中の `poyoPoyo` アニメーションの `steps(3)` が、カクカクしたコマ送りの可愛さを出してるポイントだっち🍄")
