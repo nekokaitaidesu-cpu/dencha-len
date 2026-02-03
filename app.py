@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 ずんぐり可愛い！車体低めの豆粒電車だっち 🍄")
-st.write("車体を少し下げて、タイヤが半分隠れるようにしたよ！ずんぐり感アップ！")
+st.title("🚂 レンガの橋をゆく、豆粒電車だっち 🍄")
+st.write("手描きイラストみたいに、レンガ造りのアーチ橋の上を走るようにしたよ！橋の下には川も流れてるだっち！")
 
 # HTML/CSSコード
 html_code = """
@@ -19,7 +19,8 @@ html_code = """
     .scene {
         width: 100%;
         height: 600px;
-        background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 70%, #f0e68c 100%);
+        /* 空と水面のグラデーション：下30%を水の色にしたよ */
+        background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 70%, #40a4df 70%, #0077be 100%);
         position: relative;
         overflow: hidden;
         border-radius: 15px;
@@ -49,37 +50,68 @@ html_code = """
     .cloud.c2 { width: 100px; height: 40px; top: 180px; left: -120px; animation-duration: 25s; animation-delay: 10s; }
     .cloud.c2::after { width: 50px; height: 50px; top: -25px; left: 15px; }
 
-    /* 橋（巨大） */
+    /* --- 橋（デザイン変更） --- */
     .bridge {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 200%;
         height: 280px; /* 接地基準 */
-        background-color: #8B4513;
-        background-image: radial-gradient(circle at bottom center, transparent 65%, #A0522D 66%);
-        background-size: 200px 200px;
-        background-repeat: repeat-x;
-        background-position: bottom;
-        animation: scrollBridge 3s linear infinite;
         z-index: 5;
+        
+        /* 背景を3層重ねてレンガ橋を表現！
+           1. アーチの穴（透明にして背景の水を見せる）
+           2. レンガの横線（薄い黒線）
+           3. 橋のベース色（赤茶色）
+        */
+        background-color: #A0522D; /* ベースの茶色（Sienna） */
+        background-image: 
+            /* 層1: アーチ（下中央に円形の透明部分を作る） */
+            radial-gradient(circle at bottom center, transparent 60%, #A0522D 60.5%),
+            /* 層2: レンガ風の横縞模様 */
+            linear-gradient(to bottom, rgba(0,0,0,0.1) 2px, transparent 2px);
+            
+        /* サイズ設定 */
+        background-size: 
+            200px 280px, /* アーチの間隔 */
+            100% 20px;   /* レンガの線の間隔 */
+            
+        background-repeat: repeat-x, repeat;
+        background-position: bottom left;
+        
+        animation: scrollBridge 3s linear infinite;
     }
-    /* 線路の表面 */
+
+    /* 橋の上部（路盤・手すり部分） */
     .bridge::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 30px;
-        background: #654321;
-        border-bottom: 8px solid #4e342e;
+        height: 15px;
+        background: #5D4037; /* 濃い茶色 */
+        border-bottom: 4px solid #3E2723;
+    }
+    
+    /* 橋のレンガの縦線（アクセント）- 擬似要素で簡易的に追加 */
+    .bridge::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* 破線でレンガの縦目地を表現 */
+        background-image: linear-gradient(90deg, rgba(0,0,0,0.05) 2px, transparent 2px);
+        background-size: 40px 100%;
+        pointer-events: none;
     }
 
-    /* --- 電車コンテナ --- */
+    /* --- 電車コンテナ（変更なし） --- */
     .train-container {
         position: absolute;
-        bottom: 280px; /* 橋の高さに合わせて接地 */
+        bottom: 280px; /* 橋の高さに合わせる */
         width: 54px;
         height: 40px;
         z-index: 10;
@@ -87,7 +119,7 @@ html_code = """
         animation: poyoPoyo 0.5s steps(3) infinite alternate;
     }
 
-    /* 電車のボディ */
+    /* 電車のボディ（変更なし） */
     .train-body {
         width: 100%;
         height: 28px;
@@ -95,7 +127,6 @@ html_code = """
         border-radius: 6px;
         border: 2px solid #004D40;
         position: absolute;
-        /* 変更点：タイヤの高さ(9px)の半分(4.5px)だけ下げる */
         bottom: 4.5px; 
         left: 0;
         display: flex;
@@ -103,7 +134,7 @@ html_code = """
         align-items: center;
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
         box-sizing: border-box;
-        z-index: 2; /* タイヤより手前に表示 */
+        z-index: 2;
     }
 
     /* 屋根 */
@@ -130,17 +161,17 @@ html_code = """
     /* タイヤコンテナ */
     .wheels-container {
         position: absolute;
-        bottom: 0; /* 接地 */
+        bottom: 0;
         width: 100%;
         height: 9px;
         display: flex;
         justify-content: space-between;
         padding: 0 8px;
         box-sizing: border-box;
-        z-index: 1; /* ボディより後ろに表示 */
+        z-index: 1;
     }
 
-    /* タイヤ（2つ） */
+    /* タイヤ */
     .wheel {
         width: 9px;
         height: 9px;
@@ -172,14 +203,11 @@ html_code = """
         0% { transform: translateX(130%); }
         100% { transform: translateX(-200%); }
     }
-    
-    /* ぽよぽよ */
     @keyframes poyoPoyo {
         0% { transform: translateY(0) scale(1, 1); }
         50% { transform: translateY(0.5px) scale(1.03, 0.97); }
         100% { transform: translateY(-0.5px) scale(0.98, 1.02); }
     }
-
     @keyframes smoke {
         0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); }
         100% { opacity: 0; transform: scale(1.5) translate(-10px, -20px); }
@@ -216,4 +244,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=600)
 
-st.write("タイヤが半分隠れて、さらに愛くるしくなっただっち！🍄")
+st.write("橋の下から水面が見えて、いい景色になっただっち🍄")
