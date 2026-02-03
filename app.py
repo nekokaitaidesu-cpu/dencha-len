@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 連結！無限ゆるゆる電車ジャンプ 🚃🚃")
-st.write("「増結チケット」を拾って車両を増やそう！落ちると1両に戻っちゃうから気をつけて！")
+st.title("🍄 カラス襲来！連結＆略奪サバイバル 🦅🚃")
+st.write("連結して長くなると、カラスが先頭車両を盗みに来るよ！ジャンプでかわせ！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -64,86 +64,108 @@ html_code = """
     /* アイテム（増結チケット） */
     .item {
         position: absolute;
-        bottom: 50px; /* 橋の上に浮く */
+        bottom: 50px;
         width: 30px;
         height: 20px;
-        background: #FFD700; /* 金色 */
+        background: #FFD700;
         border: 2px solid #FFA000;
         border-radius: 4px;
         z-index: 6;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: flex; justify-content: center; align-items: center;
         box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
         animation: floatItem 1s ease-in-out infinite alternate;
     }
-    .item::after {
-        content: '+1';
-        font-size: 12px;
-        font-weight: bold;
-        color: #8B4500;
-    }
+    .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; }
     @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-    /* プレイヤーコンテナ（全体） */
+    /* --- カラス (The Crow) --- */
+    .crow {
+        position: absolute;
+        width: 50px; height: 30px;
+        z-index: 20;
+    }
+    .crow-body {
+        position: absolute; top: 5px; left: 10px;
+        width: 35px; height: 20px;
+        background: #333; /* カラス色 */
+        border-radius: 50%;
+    }
+    .crow-head {
+        position: absolute; top: 0; left: 0;
+        width: 18px; height: 18px;
+        background: #333;
+        border-radius: 50%;
+    }
+    .crow-beak {
+        position: absolute; top: 5px; left: -8px;
+        width: 0; height: 0;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        border-right: 10px solid #FFD700; /* 黄色のくちばし */
+    }
+    .crow-eye {
+        position: absolute; top: 5px; left: 5px;
+        width: 4px; height: 4px; background: white; border-radius: 50%;
+    }
+    .crow-wing {
+        position: absolute; top: -5px; left: 15px;
+        width: 25px; height: 15px;
+        background: #222;
+        border-radius: 50% 50% 0 0;
+        transform-origin: bottom center;
+        animation: flap 0.2s infinite alternate;
+    }
+    @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
+
+    /* 連れ去り演出用のコンテナ */
+    .stolen-scene {
+        position: absolute;
+        z-index: 30;
+        pointer-events: none; /* クリック透過 */
+    }
+    .stolen-scene .train-unit {
+        transform: rotate(10deg); /* ぶら下がってる感 */
+    }
+
+    /* プレイヤーコンテナ */
     #player-train {
         position: absolute;
         left: 100px;
-        /* 高さは車両の高さ、幅は可変（flex） */
         height: 40px;
         z-index: 10;
         transform-origin: bottom center;
         display: flex;
-        flex-direction: row-reverse; /* 先頭車両を右（進行方向）にするため反転 */
-        align-items: flex-end; /* 下揃え */
-        gap: 2px; /* 連結間隔 */
+        flex-direction: row-reverse;
+        align-items: flex-end;
+        gap: 2px;
         transition: transform 0.1s;
     }
     #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; }
 
-    /* 車両ユニット（先頭も客車も共通） */
-    .train-unit {
-        position: relative;
-        width: 54px;
-        height: 40px;
-        flex-shrink: 0; /* 縮まないように */
-    }
-
-    /* 車両ボディ */
+    /* 車両ユニット共通 */
+    .train-unit { position: relative; width: 54px; height: 40px; flex-shrink: 0; }
     .train-body {
         width: 100%; height: 28px; background-color: #4DB6AC; border-radius: 6px; border: 2px solid #004D40;
         position: absolute; bottom: 4.5px; left: 0; display: flex; justify-content: space-evenly; align-items: center;
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2); box-sizing: border-box; z-index: 2;
     }
-    /* 客車（後ろの車両）は少し色を変える？いや、統一感重視で同じにする */
-    /* .wagon .train-body { background-color: #81C784; } */
-
     .train-body::before { content: ''; position: absolute; top: -5px; left: 2px; width: 46px; height: 5px; background-color: #004D40; border-radius: 3px 3px 0 0; }
     .window { width: 8px; height: 8px; background-color: #FFF9C4; border: 1px solid #004D40; border-radius: 2px; }
     .wheels-container { position: absolute; bottom: 0; width: 100%; height: 9px; display: flex; justify-content: space-between; padding: 0 8px; box-sizing: border-box; z-index: 1; }
     .wheel { width: 9px; height: 9px; background-color: #FFC107; border: 1.5px solid #FF6F00; border-radius: 50%; }
     
-    /* 煙は先頭車両（head）だけ */
     .smoke { position: absolute; top: -15px; right: 5px; width: 10px; height: 10px; background: white; border-radius: 50%; opacity: 0; z-index: 0; display: none; }
     .train-unit.head .smoke { display: block; }
     #player-train.poyo .head .smoke { animation: smokeAnim 1s ease-out infinite; }
 
-    /* アニメーション */
     @keyframes poyoPoyo { 0% { transform: scale(1, 1); } 100% { transform: scale(0.95, 1.05); } }
     @keyframes smokeAnim { 0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); } 100% { opacity: 0; transform: scale(1.5) translate(-10px, -20px); } }
     @keyframes landBounce { 0% { transform: scale(1, 1); } 30% { transform: scale(1.1, 0.9); } 60% { transform: scale(0.95, 1.05); } 100% { transform: scale(1, 1); } }
     .landing { animation: landBounce 0.4s ease-out !important; }
 
-    /* アイテムゲット時のポップアップ */
     .get-effect {
-        position: absolute;
-        color: #FFD700;
-        font-weight: bold;
-        font-size: 20px;
-        animation: floatUp 0.8s ease-out forwards;
-        pointer-events: none;
-        z-index: 20;
-        text-shadow: 1px 1px 0 #000;
+        position: absolute; color: #FFD700; font-weight: bold; font-size: 20px;
+        animation: floatUp 0.8s ease-out forwards; pointer-events: none; z-index: 20; text-shadow: 1px 1px 0 #000;
     }
     @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
@@ -155,6 +177,7 @@ html_code = """
     <div class="cloud c1"></div>
     <div class="cloud c2"></div>
     <div id="obstacles-container"></div>
+    <div id="sky-container"></div>
     
     <div id="player-train" class="poyo">
         </div>
@@ -164,6 +187,7 @@ html_code = """
     const gameScreen = document.getElementById('game-screen');
     const playerTrain = document.getElementById('player-train');
     const obstaclesContainer = document.getElementById('obstacles-container');
+    const skyContainer = document.getElementById('sky-container');
 
     const BRIDGE_HEIGHT = 280;
     const GRAVITY = 0.6;
@@ -178,11 +202,12 @@ html_code = """
     let isGrounded = true;
     let isRespawning = false;
 
-    let obstacles = []; // 橋と穴
-    let items = [];     // アイテム
-    let carriageCount = 0; // 追加された客車の数
+    let obstacles = [];
+    let items = [];
+    let crows = []; // カラス管理用
+    let stolenScenes = []; // 連れ去り演出管理用
+    let carriageCount = 0;
 
-    // 車両のHTML生成関数
     function createTrainUnitHTML(isHead) {
         return `
             <div class="train-unit ${isHead ? 'head' : 'wagon'}">
@@ -193,13 +218,9 @@ html_code = """
         `;
     }
 
-    // 車両を描画する関数
     function renderTrain() {
-        // 一旦空にする
         playerTrain.innerHTML = '';
-        // 先頭車両を追加
         playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(true));
-        // 客車を追加
         for (let i = 0; i < carriageCount; i++) {
             playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(false));
         }
@@ -215,13 +236,15 @@ html_code = """
         isGrounded = true;
         updatePlayerPosition();
         
-        // 障害物リセット
         obstacles.forEach(obs => obs.element.remove());
         obstacles = [];
         items.forEach(item => item.element.remove());
         items = [];
+        crows.forEach(crow => crow.element.remove());
+        crows = [];
+        stolenScenes.forEach(s => s.element.remove());
+        stolenScenes = [];
         
-        // 車両リセット（1両に戻す）
         carriageCount = 0;
         renderTrain();
 
@@ -231,6 +254,83 @@ html_code = """
         gameLoop();
     }
 
+    // --- カラス関連の関数 ---
+
+    // カラスのHTML生成
+    function createCrowHTML() {
+        return `
+            <div class="crow-head"></div>
+            <div class="crow-beak"></div>
+            <div class="crow-body"></div>
+            <div class="crow-wing"></div>
+            <div class="crow-eye"></div>
+        `;
+    }
+
+    function spawnCrow() {
+        const element = document.createElement('div');
+        element.classList.add('crow');
+        element.innerHTML = createCrowHTML();
+        
+        // 画面右上のランダムな高さから出現
+        const startX = gameScreen.offsetWidth + 50;
+        const startY = Math.random() * 200 + 350; // 下(bottom基準)から350~550pxの高さ
+        
+        element.style.left = `${startX}px`;
+        element.style.bottom = `${startY}px`;
+        
+        skyContainer.appendChild(element);
+        
+        // 狙う位置：プレイヤーの先頭車両の「地面」位置
+        // 少し手前(PLAYER_X + 20)を狙うと当たりやすい
+        const targetX = PLAYER_X + 20; 
+        const targetY = BRIDGE_HEIGHT + 20; // 車両の中心あたり
+        
+        // 速度計算
+        const speed = 4 + Math.random() * 2; // 少しランダム
+        const dx = targetX - startX;
+        const dy = targetY - startY;
+        const distance = Math.sqrt(dx*dx + dy*dy);
+        const vx = (dx / distance) * speed;
+        const vy = (dy / distance) * speed;
+
+        crows.push({ element, x: startX, y: startY, vx, vy, state: 'attack' });
+    }
+
+    function createStolenScene(x, y) {
+        // 連れ去り演出用の要素を作成
+        const container = document.createElement('div');
+        container.classList.add('stolen-scene');
+        
+        // カラスを追加
+        const crowDiv = document.createElement('div');
+        crowDiv.classList.add('crow');
+        crowDiv.innerHTML = createCrowHTML();
+        crowDiv.style.position = 'absolute';
+        crowDiv.style.top = '0';
+        crowDiv.style.left = '0';
+        
+        // 電車を追加（カラスの下にぶら下げる）
+        const trainDiv = document.createElement('div');
+        trainDiv.innerHTML = createTrainUnitHTML(true); // 先頭車両の見た目
+        trainDiv.style.position = 'absolute';
+        trainDiv.style.top = '20px'; // カラスの足元
+        trainDiv.style.left = '5px';
+        
+        container.appendChild(crowDiv);
+        container.appendChild(trainDiv);
+        
+        container.style.left = `${x}px`;
+        container.style.bottom = `${y}px`;
+        
+        skyContainer.appendChild(container);
+        
+        // 右上へ飛び去る速度
+        stolenScenes.push({ element: container, x: x, y: y, vx: 3, vy: 5 });
+    }
+
+    // ----------------------
+
     function createObstacle(left, width, type) {
         const element = document.createElement('div');
         if (type === 'bridge') element.classList.add('bridge-part');
@@ -239,12 +339,8 @@ html_code = """
         obstaclesContainer.appendChild(element);
         obstacles.push({ element, left, width, type });
 
-        // 橋の場合、確率でアイテムを生成
         if (type === 'bridge' && width > 150) {
-            // 30%の確率でアイテム出現
-            if (Math.random() < 0.3) {
-                createItem(left + width / 2); // 橋の真ん中あたりに
-            }
+            if (Math.random() < 0.3) createItem(left + width / 2);
         }
     }
 
@@ -252,10 +348,8 @@ html_code = """
         const element = document.createElement('div');
         element.classList.add('item');
         element.style.left = `${left}px`;
-        // 橋の上(BRIDGE_HEIGHT)より少し上(bottomからの距離)
-        // 障害物コンテナ内なので bottom 指定でOK
         element.style.bottom = `${BRIDGE_HEIGHT + 30}px`; 
-        obstaclesContainer.appendChild(element); // 障害物と同じコンテナでスクロール管理
+        obstaclesContainer.appendChild(element);
         items.push({ element, left });
     }
 
@@ -291,11 +385,8 @@ html_code = """
     function respawn() {
         if (isRespawning) return;
         isRespawning = true;
-        
-        // 落下したら車両リセット！
         carriageCount = 0;
         renderTrain();
-        
         setTimeout(() => {
             playerY = 600;
             playerVy = 0;
@@ -304,13 +395,12 @@ html_code = """
         }, 1000);
     }
 
-    // アイテムゲットのエフェクト
     function showGetEffect() {
         const effect = document.createElement('div');
         effect.classList.add('get-effect');
         effect.textContent = 'CONNECT!';
         effect.style.left = `${PLAYER_X}px`;
-        effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; // プレイヤーの上に表示
+        effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; 
         gameScreen.appendChild(effect);
         setTimeout(() => effect.remove(), 800);
     }
@@ -318,22 +408,79 @@ html_code = """
     function gameLoop() {
         if (!isGameRunning) return;
 
-        // 1. 物理演算
         if (!isRespawning) {
             playerVy += GRAVITY;
             playerY -= playerVy;
         }
 
-        // 2. 障害物スクロール & アイテム処理
-        let currentGround = null;
+        // カラスのスポーン判定（車両が1両以上あるときだけ）
+        // 確率で出現 & 画面内にカラスが多すぎないように
+        if (carriageCount >= 1 && crows.length === 0 && !isRespawning) {
+            if (Math.random() < 0.005) { // 0.5%の確率で毎フレーム抽選
+                spawnCrow();
+            }
+        }
 
-        // --- 障害物 ---
+        // --- カラスの更新 ---
+        crows.forEach((crow, index) => {
+            crow.x += crow.vx;
+            crow.y += crow.vy;
+            crow.element.style.left = `${crow.x}px`;
+            crow.element.style.bottom = `${crow.y}px`;
+
+            // 攻撃中なら当たり判定
+            if (crow.state === 'attack') {
+                // プレイヤーの先頭車両との距離判定
+                const trainCenterX = PLAYER_X + 27; // 車両幅54の半分
+                const trainCenterY = playerY + 20;  // 車両高さ40の半分
+                
+                const dx = (crow.x + 25) - trainCenterX; // カラス中心
+                const dy = (crow.y + 15) - trainCenterY;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+
+                // ヒット！
+                if (distance < 40 && !isRespawning) {
+                    // 1. 車両を減らす
+                    carriageCount--;
+                    renderTrain(); // 描画更新（これで先頭が消え、次が先頭になる）
+                    
+                    // 2. 連れ去り演出生成
+                    createStolenScene(PLAYER_X, playerY);
+                    
+                    // 3. この攻撃カラスは消す
+                    crow.element.remove();
+                    crows.splice(index, 1);
+                    return; // ループ抜ける
+                }
+            }
+
+            // 画面外に出たら消す
+            if (crow.x < -100 || crow.y > 800 || crow.y < -50) {
+                crow.element.remove();
+                crows.splice(index, 1);
+            }
+        });
+
+        // --- 連れ去り演出の更新 ---
+        stolenScenes.forEach((scene, index) => {
+            scene.x += scene.vx;
+            scene.y += scene.vy;
+            scene.element.style.left = `${scene.x}px`;
+            scene.element.style.bottom = `${scene.y}px`;
+            
+            if (scene.y > 800) {
+                scene.element.remove();
+                stolenScenes.splice(index, 1);
+            }
+        });
+
+        // --- 障害物 & アイテム ---
+        let currentGround = null;
         obstacles.forEach((obs, index) => {
             obs.left -= SCROLL_SPEED;
             obs.element.style.left = `${obs.left}px`;
 
             const playerRight = PLAYER_X + 54;
-            // 接地判定（先頭車両のみ判定する）
             if (playerRight - 10 > obs.left && PLAYER_X + 10 < obs.left + obs.width) {
                 if (obs.type === 'bridge') currentGround = obs;
             }
@@ -344,33 +491,21 @@ html_code = """
             }
         });
 
-        // --- アイテム ---
         items.forEach((item, index) => {
             item.left -= SCROLL_SPEED;
             item.element.style.left = `${item.left}px`;
-            
-            // アイテム当たり判定（先頭車両と）
-            // 簡易的な距離判定 or 矩形判定
             const itemWidth = 30;
             const playerWidth = 54;
-            // プレイヤーXは固定(100)。アイテムがプレイヤーの範囲に入ったか
             if (item.left < PLAYER_X + playerWidth && item.left + itemWidth > PLAYER_X) {
-                // 高さ判定（ジャンプで取れるように）
-                // プレイヤーの底辺(playerY)から高さ40pxの間にあるか
-                const itemBottom = BRIDGE_HEIGHT + 30; // アイテムの高さ
-                // プレイヤーがアイテムの高さ付近にいるか
+                const itemBottom = BRIDGE_HEIGHT + 30;
                 if (playerY < itemBottom + 40 && playerY + 40 > itemBottom) {
-                    // ゲット！
                     item.element.remove();
                     items.splice(index, 1);
-                    
-                    // 車両追加処理
                     carriageCount++;
                     renderTrain();
                     showGetEffect();
                 }
             }
-
             if (item.left < -50) {
                 item.element.remove();
                 items.splice(index, 1);
@@ -379,7 +514,7 @@ html_code = """
 
         spawnNextObstacle();
 
-        // 3. 接地・落下判定
+        // 接地・落下
         if (!isRespawning) {
             if (currentGround && playerY <= BRIDGE_HEIGHT && playerY > BRIDGE_HEIGHT - 30 && playerVy >= 0) {
                 if (!isGrounded) {
@@ -420,4 +555,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=650)
 
-st.write("増結チケットをゲットして、なが〜い電車を作ってみてね！落ちると一瞬で解散だっち！🍄👋")
+st.write("チケットを集めるとカラスが襲ってくる！ジャンプでかわして、連結を守り抜けだっち！🦅🍄")
