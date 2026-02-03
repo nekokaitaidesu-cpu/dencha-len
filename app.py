@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 虹の彼方へ！ぽよぽよ銀河鉄道 🚂🌈🌌")
-st.write("車両を4つ集めると、虹のレールと手描きの星空が待つ銀河モードへ！ヘルメットを被ったカラスにも注目！")
+st.title("🍄 虹の彼方へ！進化した銀河鉄道の夜 🚂🌈🌌")
+st.write("車両を4つ集めると、虹色のレールと宇宙ヘルメットのカラスが待つ銀河へ出発だっち！重力も「ちょいフワ」になったよ！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -20,20 +20,23 @@ html_code = """
         /* 昼モードの色 */
         --sky-top-day: #87CEEB; --sky-bottom-day: #E0F7FA;
         --water-top-day: #40a4df; --water-bottom-day: #0077be;
-        --bridge-base-day: #A0522D; --bridge-line-day: rgba(0,0,0,0.2); --bridge-top-day: #5D4037;
+        --bridge-base-day: #A0522D; --bridge-line-day: rgba(0,0,0,0.2);
+        --bridge-top-day: #5D4037; /* 通常の線路の色 */
         
         /* 夜（銀河）モードの色 */
-        --sky-top-night: #000022; --sky-bottom-night: #110044; /* 少し深みのある色に */
-        --water-top-night: #000033; --water-bottom-night: #220055;
-        --bridge-base-night: #2a3b4c;
-        --bridge-line-night: rgba(255,255,255,0.15);
-        /* 虹のレール！ */
-        --bridge-top-night: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+        --sky-top-night: #000033; --sky-bottom-night: #220066;
+        --water-top-night: #110033; --water-bottom-night: #330066;
+        --bridge-base-night: #3a4b5c;
+        --bridge-line-night: rgba(255,255,255,0.1);
+        /* 線路の色は虹色グラデーションで上書きするので、ここでは指定しない */
 
         /* 現在適用される色 */
-        --current-sky-top: var(--sky-top-day); --current-sky-bottom: var(--sky-bottom-day);
-        --current-water-top: var(--water-top-day); --current-water-bottom: var(--water-bottom-day);
-        --current-bridge-base: var(--bridge-base-day); --current-bridge-line: var(--bridge-line-day);
+        --current-sky-top: var(--sky-top-day);
+        --current-sky-bottom: var(--sky-bottom-day);
+        --current-water-top: var(--water-top-day);
+        --current-water-bottom: var(--water-bottom-day);
+        --current-bridge-base: var(--bridge-base-day);
+        --current-bridge-line: var(--bridge-line-day);
         --current-bridge-top: var(--bridge-top-day);
 
         --bridge-height: 280px;
@@ -58,62 +61,26 @@ html_code = """
     .cloud.c2 { width: 80px; height: 30px; top: 150px; left: 60%; }
     .cloud.c2::after { width: 35px; height: 35px; top: -15px; left: 10px; }
 
-    /* --- 宇宙の装飾（銀河モードのみ表示） --- */
-    
-    /* 小さな星（背景） */
+    /* 夜の星と月（初期は非表示） */
     .star {
-        position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; z-index: 0;
-        opacity: 0; animation: twinkle 3s infinite alternate; transition: opacity 1s ease;
+        position: absolute; width: 3px; height: 3px; background: #FFF; border-radius: 50%; z-index: 0;
+        opacity: 0; box-shadow: 0 0 5px #FFF, 0 0 10px #FFD700; /* 少し黄色く輝かせる */
+        animation: twinkle 3s infinite alternate; transition: opacity 1s ease;
     }
     @keyframes twinkle { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
-
-    /* 手描き風の大きな星 */
-    .big-star {
-        position: absolute; width: 40px; height: 40px; z-index: 0; opacity: 0; transition: opacity 1s ease;
-        color: #FFD700; /* 黄色 */
-        /* CSSで星型を描くハック */
-        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-        background-color: currentColor;
-        box-shadow: 0 0 10px currentColor; /* 手描きっぽい光 */
-        animation: floatStar 4s ease-in-out infinite alternate;
-    }
-    /* 顔を追加（疑似要素で） */
-    .big-star::after {
-        content: '..'; /* 目 */
-        position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) rotate(90deg);
-        font-size: 14px; color: #8B4500; font-weight: bold; letter-spacing: 4px;
-    }
-    .big-star::before {
-        content: '◡'; /* 口 */
-        position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
-        font-size: 10px; color: #8B4500;
-    }
-    @keyframes floatStar { from { transform: translateY(0) rotate(-10deg); } to { transform: translateY(-20px) rotate(10deg); } }
-
-    /* 顔つきの月 */
-    .moon {
-        position: absolute; top: 50px; right: 50px; width: 80px; height: 80px; z-index: 0; opacity: 0; transition: opacity 1s ease;
-        background: #FFD700; border-radius: 50%; box-shadow: 0 0 20px #FFD700;
-    }
-    /* 三日月っぽくする＆顔 */
-    .moon::after {
-        content: ''; position: absolute; top: -10px; right: -10px; width: 80px; height: 80px;
-        background: var(--sky-top-night); /* 背景色で隠す */
-        border-radius: 50%;
-    }
-    /* 顔のパーツ */
-    .moon-face {
-        position: absolute; top: 30%; left: 30%; color: #8B4500; font-size: 20px; font-weight: bold;
-    }
-
-    /* 銀河モード時の表示切替 */
-    #game-screen.galaxy-mode .cloud { opacity: 0; }
-    #game-screen.galaxy-mode .star, #game-screen.galaxy-mode .big-star, #game-screen.galaxy-mode .moon { opacity: 1; }
     
-    /* 銀河モード時の電車発光 */
+    .moon {
+        position: absolute; top: 50px; right: 80px; width: 80px; height: 80px;
+        background: transparent; border-radius: 50%;
+        box-shadow: -20px 20px 0 0 #FFD700; /* 黄色い三日月 */
+        opacity: 0; transition: opacity 1s ease; z-index: 0; transform: rotate(-20deg);
+    }
+
+    /* 銀河モード時のスタイル切り替え */
+    #game-screen.galaxy-mode .cloud { opacity: 0; }
+    #game-screen.galaxy-mode .star, #game-screen.galaxy-mode .moon { opacity: 1; }
     #game-screen.galaxy-mode .train-body {
-        box-shadow: 0 0 20px #00BFFF, inset 0 0 10px #E0FFFF;
-        border-color: #00BFFF;
+        box-shadow: 0 0 20px #00BFFF, inset 0 0 10px #E0FFFF; border-color: #00BFFF; /* 発光強化 */
     }
 
     #obstacles-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--bridge-height); z-index: 5; }
@@ -122,11 +89,31 @@ html_code = """
         background-color: var(--current-bridge-base);
         background-image: linear-gradient(to bottom, var(--current-bridge-line) 2px, transparent 2px), linear-gradient(90deg, var(--current-bridge-line) 2px, transparent 2px);
         background-size: 100% 20px, 40px 100%; box-sizing: border-box; 
-        /* 虹色のレールはborder-imageで表現！ */
-        border-top: 15px solid transparent; /* 幅を少し太く */
-        border-image: var(--current-bridge-top) 1;
-        transition: all 1s ease;
+        border-top: 10px solid var(--current-bridge-top);
+        transition: background-color 1s ease, border-top-color 1s ease;
+        position: relative; /* 虹色レールのために必要 */
     }
+    
+    /* ★虹色のレール（銀河モード時のみ表示）★ */
+    #game-screen.galaxy-mode .bridge-part::before {
+        content: '';
+        position: absolute;
+        top: -10px; /* border-topの上にかぶせる */
+        left: 0;
+        width: 100%;
+        height: 10px;
+        /* 虹色グラデーション */
+        background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 1s ease;
+    }
+    /* 通常時は虹を隠す */
+    .bridge-part::before {
+        content: ''; position: absolute; top: -10px; left: 0; width: 100%; height: 10px;
+        background: transparent; z-index: 1; opacity: 0; transition: opacity 1s ease;
+    }
+
 
     /* アイテム */
     .item {
@@ -136,39 +123,33 @@ html_code = """
     .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; }
     @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-    /* --- カラス (宇宙装備) --- */
-    .crow { position: absolute; width: 50px; height: 40px; z-index: 20; /* ヘルメット分高さを確保 */ }
-    .crow-body { position: absolute; top: 10px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; }
-    .crow-head { position: absolute; top: 5px; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; z-index: 2; }
-    .crow-beak { position: absolute; top: 10px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; z-index: 2; }
-    .crow-eye { position: absolute; top: 10px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; z-index: 3; }
-    .crow-wing { position: absolute; top: 0px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; z-index: 1; }
-    
-    /* 宇宙ヘルメット */
-    .crow-helmet {
-        position: absolute; top: 0; left: -5px; width: 30px; height: 30px;
-        background: rgba(135, 206, 235, 0.3); /* 半透明の水色 */
-        border: 2px solid rgba(255, 255, 255, 0.6);
-        border-radius: 50%;
-        z-index: 4; /* 最前面 */
-        box-shadow: inset 0 0 5px rgba(255,255,255,0.8);
-        display: none; /* 初期は非表示 */
-    }
-    /* ヘルメットの光沢 */
-    .crow-helmet::after {
-        content: ''; position: absolute; top: 5px; right: 5px; width: 8px; height: 5px;
-        background: rgba(255, 255, 255, 0.7); border-radius: 50%; transform: rotate(-30deg);
-    }
-    /* 銀河モード時のみヘルメット表示 */
-    #game-screen.galaxy-mode .crow-helmet { display: block; }
-
+    /* --- カラス --- */
+    .crow { position: absolute; width: 50px; height: 30px; z-index: 20; }
+    .crow-body { position: absolute; top: 5px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; }
+    .crow-head { position: absolute; top: 0; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; }
+    .crow-beak { position: absolute; top: 5px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; }
+    .crow-eye { position: absolute; top: 5px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; }
+    .crow-wing { position: absolute; top: -5px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; }
     @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
+
+    /* ★宇宙ヘルメット★ */
+    .crow-helmet {
+        position: absolute;
+        top: -8px; left: -8px;
+        width: 50px; height: 50px;
+        background: rgba(255, 255, 255, 0.3); /* 半透明のガラス */
+        border: 2px solid rgba(255, 255, 255, 0.8); /* 枠 */
+        border-radius: 50%;
+        z-index: 25; /* カラス本体より前 */
+        display: none; /* 初期は非表示 */
+        box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+    }
+    /* 銀河モードのカラスにヘルメットを表示 */
+    .crow.space-mode .crow-helmet { display: block; }
+
 
     .stolen-scene { position: absolute; z-index: 30; pointer-events: none; }
     .stolen-scene .train-unit { transform: rotate(10deg); }
-    /* 連れ去り時のカラスもヘルメット表示 */
-    #game-screen.galaxy-mode .stolen-scene .crow-helmet { display: block; }
-
 
     /* プレイヤー */
     #player-train {
@@ -214,10 +195,8 @@ html_code = """
 <div id="game-screen">
     <div class="cloud c1"></div>
     <div class="cloud c2"></div>
-    
-    <div id="space-decorations">
-        <div class="moon"><div class="moon-face">・・<br> ‿ </div></div>
-        </div>
+    <div id="stars-container"></div>
+    <div class="moon"></div>
     
     <div id="carriage-count-display">車両: 1</div>
     
@@ -231,7 +210,7 @@ html_code = """
     const playerTrain = document.getElementById('player-train');
     const obstaclesContainer = document.getElementById('obstacles-container');
     const skyContainer = document.getElementById('sky-container');
-    const spaceDecorations = document.getElementById('space-decorations');
+    const starsContainer = document.getElementById('stars-container');
     const carriageCountDisplay = document.getElementById('carriage-count-display');
     const root = document.documentElement;
 
@@ -239,9 +218,9 @@ html_code = """
     const SCROLL_SPEED = 5;
     const PLAYER_X = 100;
     
-    // 重力調整（ちょいふわ）
+    // 重力設定
     const GRAVITY_DAY = 0.6;
-    const GRAVITY_NIGHT = 0.3; // 月面(0.15)より少し重くしたよ
+    const GRAVITY_NIGHT = 0.4; // ★ちょいフワ★に調整
     let currentGravity = GRAVITY_DAY;
     const JUMP_POWER = 12;
 
@@ -258,33 +237,25 @@ html_code = """
     let crows = [];
     let stolenScenes = [];
     let carriageCount = 0;
-    let bigStars = [];
 
-    // 装飾（小星と大星）を生成
-    function createDecorations() {
-        // 小さい星（背景）
+    // 星を生成
+    function createStars() {
         for (let i = 0; i < 80; i++) {
             const star = document.createElement('div');
             star.classList.add('star');
             star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 70}%`;
+            star.style.top = `${Math.random() * 80}%`;
+            // サイズとアニメーションをランダムに
+            const size = Math.random() * 3 + 2;
+            star.style.width = `${size}px`; star.style.height = `${size}px`;
             star.style.animationDelay = `${Math.random() * 3}s`;
-            spaceDecorations.appendChild(star);
-        }
-        // 手描きの大きな星
-        for (let i = 0; i < 5; i++) {
-            const bigStar = document.createElement('div');
-            bigStar.classList.add('big-star');
-            // ランダムな位置に配置（被らないように調整は省略）
-            bigStar.style.left = `${10 + Math.random() * 80}%`;
-            bigStar.style.top = `${10 + Math.random() * 50}%`;
-            bigStar.style.animationDelay = `${Math.random() * 2}s`;
-            spaceDecorations.appendChild(bigStar);
-            bigStars.push(bigStar);
+            star.style.animationDuration = `${Math.random() * 2 + 2}s`;
+            starsContainer.appendChild(star);
         }
     }
-    createDecorations();
+    createStars();
 
+    // 銀河モード切替
     function toggleGalaxyMode(enable) {
         if (isGalaxyMode === enable) return;
         isGalaxyMode = enable;
@@ -298,8 +269,12 @@ html_code = """
             root.style.setProperty('--current-water-bottom', 'var(--water-bottom-night)');
             root.style.setProperty('--current-bridge-base', 'var(--bridge-base-night)');
             root.style.setProperty('--current-bridge-line', 'var(--bridge-line-night)');
-            // 虹のレール！
-            root.style.setProperty('--current-bridge-top', 'var(--bridge-top-night)');
+            // レールは虹色で上書きされるので線色は透明に
+            root.style.setProperty('--current-bridge-top', 'transparent');
+            
+            // 既存のカラスにヘルメットを装着
+            crows.forEach(crow => crow.element.classList.add('space-mode'));
+            
         } else {
             gameScreen.classList.remove('galaxy-mode');
             currentGravity = GRAVITY_DAY;
@@ -310,6 +285,9 @@ html_code = """
             root.style.setProperty('--current-bridge-base', 'var(--bridge-base-day)');
             root.style.setProperty('--current-bridge-line', 'var(--bridge-line-day)');
             root.style.setProperty('--current-bridge-top', 'var(--bridge-top-day)');
+            
+            // カラスのヘルメットを外す
+            crows.forEach(crow => crow.element.classList.remove('space-mode'));
         }
     }
 
@@ -331,7 +309,7 @@ html_code = """
         }
         carriageCountDisplay.textContent = `車両: ${carriageCount + 1}`;
         
-        // 車両数4で発動に変更！
+        // ★発動条件変更: 4両以上★
         if (carriageCount + 1 >= 4) {
             toggleGalaxyMode(true);
         } else {
@@ -367,7 +345,7 @@ html_code = """
         gameLoop();
     }
 
-    // --- カラス（ヘルメット追加） ---
+    // --- カラス ---
     function createCrowHTML() {
         return `
             <div class="crow-helmet"></div> <div class="crow-head"></div><div class="crow-beak"></div><div class="crow-body"></div><div class="crow-wing"></div><div class="crow-eye"></div>
@@ -376,6 +354,8 @@ html_code = """
     function spawnCrow() {
         const element = document.createElement('div');
         element.classList.add('crow');
+        // 銀河モード中なら最初からヘルメット装着
+        if (isGalaxyMode) element.classList.add('space-mode');
         element.innerHTML = createCrowHTML();
         const startX = gameScreen.offsetWidth + 50;
         const startY = Math.random() * 200 + 350;
@@ -395,6 +375,8 @@ html_code = """
         container.classList.add('stolen-scene');
         const crowDiv = document.createElement('div');
         crowDiv.classList.add('crow');
+        // 連れ去り時のカラスもモードに合わせる
+        if (isGalaxyMode) crowDiv.classList.add('space-mode');
         crowDiv.innerHTML = createCrowHTML();
         const trainDiv = document.createElement('div');
         trainDiv.innerHTML = createTrainUnitHTML(true);
@@ -416,7 +398,8 @@ html_code = """
         obstaclesContainer.appendChild(element);
         obstacles.push({ element, left, width, type });
         if (type === 'bridge' && width > 150) {
-            if (Math.random() < 0.3) createItem(left + width / 2);
+            // チケット出現率を少し上げて4両集めやすくする(40%)
+            if (Math.random() < 0.4) createItem(left + width / 2);
         }
     }
     function createItem(left) {
@@ -557,4 +540,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=650)
 
-st.write("車両を4両集めて、虹色の銀河へ出発だっち！ヘルメットカラスに気をつけて！🍄🌈🦅")
+st.write("4両集めて、虹の銀河へ出発進行！ヘルメット姿のカラスにも注目だっち！🍄🌈🌌")
