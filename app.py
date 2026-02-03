@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 レンガの橋をゆく、豆粒電車だっち 🍄")
-st.write("手描きイラストみたいに、レンガ造りのアーチ橋の上を走るようにしたよ！橋の下には川も流れてるだっち！")
+st.title("🚂 光るレンガの橋をゆく、豆粒電車だっち 🍄")
+st.write("手描きイラストみたいに、橋に白いハイライトを入れて、光が当たってる感じを出したよ！")
 
 # HTML/CSSコード
 html_code = """
@@ -19,7 +19,7 @@ html_code = """
     .scene {
         width: 100%;
         height: 600px;
-        /* 空と水面のグラデーション：下30%を水の色にしたよ */
+        /* 空と水面のグラデーション */
         background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 70%, #40a4df 70%, #0077be 100%);
         position: relative;
         overflow: hidden;
@@ -50,36 +50,36 @@ html_code = """
     .cloud.c2 { width: 100px; height: 40px; top: 180px; left: -120px; animation-duration: 25s; animation-delay: 10s; }
     .cloud.c2::after { width: 50px; height: 50px; top: -25px; left: 15px; }
 
-    /* --- 橋（デザイン変更） --- */
+    /* --- 橋（デザイン追加：白いハイライト） --- */
     .bridge {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 200%;
-        height: 280px; /* 接地基準 */
+        height: 280px;
         z-index: 5;
         
-        /* 背景を3層重ねてレンガ橋を表現！
-           1. アーチの穴（透明にして背景の水を見せる）
-           2. レンガの横線（薄い黒線）
-           3. 橋のベース色（赤茶色）
-        */
-        background-color: #A0522D; /* ベースの茶色（Sienna） */
+        background-color: #A0522D; /* ベースの茶色 */
         background-image: 
-            /* 層1: アーチ（下中央に円形の透明部分を作る） */
+            /* 層1: アーチ（透明部分） */
             radial-gradient(circle at bottom center, transparent 60%, #A0522D 60.5%),
-            /* 層2: レンガ風の横縞模様 */
+            /* 層2: 白いハイライト（上から下へ薄くなる）追加！ */
+            linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 30%),
+            /* 層3: レンガ風の横縞模様 */
             linear-gradient(to bottom, rgba(0,0,0,0.1) 2px, transparent 2px);
             
-        /* サイズ設定 */
         background-size: 
-            200px 280px, /* アーチの間隔 */
-            100% 20px;   /* レンガの線の間隔 */
+            200px 280px, /* アーチ */
+            100% 100%,   /* ハイライト */
+            100% 20px;   /* レンガ横線 */
             
-        background-repeat: repeat-x, repeat;
-        background-position: bottom left;
+        background-repeat: repeat-x, no-repeat, repeat;
+        background-position: bottom left, top left, bottom left;
         
         animation: scrollBridge 3s linear infinite;
+
+        /* 橋の下端に白い光彩を追加 */
+        box-shadow: inset 0 -5px 10px rgba(255,255,255,0.4);
     }
 
     /* 橋の上部（路盤・手すり部分） */
@@ -90,11 +90,13 @@ html_code = """
         left: 0;
         width: 100%;
         height: 15px;
-        background: #5D4037; /* 濃い茶色 */
+        background: #5D4037;
         border-bottom: 4px solid #3E2723;
+        /* 路盤の角に白いハイライトを追加！ */
+        box-shadow: inset 0 2px 3px rgba(255,255,255,0.5);
     }
     
-    /* 橋のレンガの縦線（アクセント）- 擬似要素で簡易的に追加 */
+    /* 橋のレンガの縦線＆白いアクセント */
     .bridge::after {
         content: '';
         position: absolute;
@@ -102,16 +104,19 @@ html_code = """
         left: 0;
         width: 100%;
         height: 100%;
-        /* 破線でレンガの縦目地を表現 */
-        background-image: linear-gradient(90deg, rgba(0,0,0,0.05) 2px, transparent 2px);
-        background-size: 40px 100%;
+        /* 縦目地に加えて、ランダムな白いハイライト風の模様を追加！ */
+        background-image: 
+            linear-gradient(90deg, rgba(0,0,0,0.05) 2px, transparent 2px),
+            radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 20%);
+        background-size: 40px 100%, 100px 50px; /* 白い模様は適当なサイズで散らす */
+        background-position: 0 0, 0 0;
         pointer-events: none;
     }
 
     /* --- 電車コンテナ（変更なし） --- */
     .train-container {
         position: absolute;
-        bottom: 280px; /* 橋の高さに合わせる */
+        bottom: 280px;
         width: 54px;
         height: 40px;
         z-index: 10;
@@ -244,4 +249,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=600)
 
-st.write("橋の下から水面が見えて、いい景色になっただっち🍄")
+st.write("手描きの温かい雰囲気に近づいたかな？🍄")
