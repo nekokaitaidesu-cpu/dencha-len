@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 ロケットも飛ぶ！賑やか銀河鉄道の旅 🚂🌈🚀🌠")
-st.write("宇宙モードの背景に、ロケットや流れ星が飛ぶようになったよ！さらに宇宙感マシマシだっち！")
+st.title("🍄 ロケットの向き修正完了！銀河鉄道の旅 🚂🌈🚀🌠")
+st.write("ロケットが正しい向き（進行方向）で飛ぶように直したよ！これでかっこよく宇宙を旅できるね！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -58,49 +58,55 @@ html_code = """
     #game-screen.galaxy-mode .star, #game-screen.galaxy-mode .moon { display: block; opacity: 1; }
     #game-screen.galaxy-mode .train-body { box-shadow: 0 0 15px #00BFFF, inset 0 0 5px #E0FFFF; border-color: #00BFFF; }
 
-    /* ★ロケット★ */
+    /* ★ロケット（修正版）★ */
     .rocket {
         position: absolute; width: 60px; height: 30px; z-index: 2;
-        animation: flyAcross 8s linear forwards; /* 画面を横切るアニメーション */
+        /* 左下から右上へ飛ぶアニメーション */
+        animation: flyAcrossDiagonal 8s linear forwards;
     }
+    /* ロケット本体（左向きに変更） */
     .rocket-body {
         position: absolute; top: 5px; left: 10px; width: 40px; height: 20px;
-        background: #f0f0f0; border-radius: 50% 10% 10% 50%; border: 2px solid #ccc;
+        background: #f0f0f0;
+        border-radius: 10% 50% 50% 10%; /* 左を尖らせる */
+        border: 2px solid #ccc;
     }
+    /* 翼（左側に移動・反転） */
     .rocket-fin {
         position: absolute; width: 15px; height: 15px; background: #ff4500;
     }
-    .rocket-fin.top { top: 0; right: 5px; clip-path: polygon(0 100%, 100% 0, 100% 100%); }
-    .rocket-fin.bottom { bottom: 0; right: 5px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .rocket-fin.top { top: 0; left: 5px; clip-path: polygon(100% 100%, 0 0, 0 100%); }
+    .rocket-fin.bottom { bottom: 0; left: 5px; clip-path: polygon(100% 0, 0 0, 0 100%); }
+    /* 窓（右側に移動） */
     .rocket-window {
-        position: absolute; top: 8px; left: 18px; width: 8px; height: 8px;
+        position: absolute; top: 8px; right: 15px; width: 8px; height: 8px;
         background: #87CEEB; border-radius: 50%; border: 2px solid #555;
     }
+    /* 炎（左側から出るように） */
     .rocket-fire {
-        position: absolute; top: 10px; right: -15px; width: 20px; height: 10px;
-        background: linear-gradient(to right, #ffff00, #ff4500); border-radius: 50% 0 0 50%;
+        position: absolute; top: 10px; left: -15px; width: 20px; height: 10px;
+        background: linear-gradient(to left, #ffff00, #ff4500); /* グラデーション反転 */
+        border-radius: 0 50% 50% 0; /* 形反転 */
         animation: flicker 0.2s infinite alternate;
     }
     @keyframes flicker { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(0.8); opacity: 0.7; } }
-    @keyframes flyAcross { from { left: -100px; } to { left: 110%; } }
+    
+    /* 斜め飛行アニメーション（45度傾けて左下→右上） */
+    @keyframes flyAcrossDiagonal {
+        from { left: -100px; top: 100%; transform: rotate(45deg); }
+        to { left: 120%; top: -200px; transform: rotate(45deg); }
+    }
 
-    /* ★流れ星★ */
+    /* 流れ星 */
     .shooting-star {
-        position: absolute; width: 100px; height: 2px;
-        background: linear-gradient(to right, rgba(255,255,255,0), #fff, rgba(255,255,255,0));
-        z-index: 0; transform: rotate(-30deg);
-        animation: shoot 3s ease-out forwards;
+        position: absolute; width: 100px; height: 2px; background: linear-gradient(to right, rgba(255,255,255,0), #fff, rgba(255,255,255,0));
+        z-index: 0; transform: rotate(-30deg); animation: shoot 3s ease-out forwards;
     }
-    @keyframes shoot {
-        from { transform: translate(0, 0) rotate(-30deg) scale(0.5); opacity: 1; }
-        to { transform: translate(-500px, 300px) rotate(-30deg) scale(1); opacity: 0; }
-    }
-
+    @keyframes shoot { from { transform: translate(0, 0) rotate(-30deg) scale(0.5); opacity: 1; } to { transform: translate(-500px, 300px) rotate(-30deg) scale(1); opacity: 0; } }
 
     #obstacles-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--bridge-height); z-index: 5; }
     .bridge-part {
-        position: absolute; bottom: 0; height: 100%;
-        background-color: var(--current-bridge-base);
+        position: absolute; bottom: 0; height: 100%; background-color: var(--current-bridge-base);
         background-image: radial-gradient(circle at bottom center, transparent 60%, var(--current-bridge-base) 61%), linear-gradient(rgba(0,0,0,0.1) 2px, transparent 2px);
         background-size: 200px 280px, 100% 20px; background-repeat: repeat-x, repeat; background-position: bottom left; box-sizing: border-box; transition: background-color 1s ease;
     }
@@ -113,57 +119,30 @@ html_code = """
     @keyframes rainbowMove { 0% { background-position: 0 0; } 100% { background-position: 100px 0; } }
     #game-screen.galaxy-mode .bridge-part::before { opacity: 1; } #game-screen.galaxy-mode .bridge-part::after { opacity: 0; }
 
-    /* アイテム */ .item { position: absolute; bottom: 50px; width: 30px; height: 20px; background: #FFD700; border: 2px solid #FFA000; border-radius: 4px; z-index: 6; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); animation: floatItem 1s ease-in-out infinite alternate; } .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; } @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
-    /* カラス */ .crow { position: absolute; width: 50px; height: 30px; z-index: 20; } .crow-body { position: absolute; top: 5px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; } .crow-head { position: absolute; top: 0; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; } .crow-beak { position: absolute; top: 5px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; } .crow-eye { position: absolute; top: 5px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; } .crow-wing { position: absolute; top: -5px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; } @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
-    /* カラスヘルメット */ .crow-helmet { position: absolute; top: -7px; left: -12px; width: 34px; height: 34px; border-radius: 50%; z-index: 25; display: none; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(200,240,255,0.3) 60%, transparent 90%); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: inset -3px -3px 8px rgba(200,240,255,0.2), 0 0 5px rgba(255,255,255,0.3); } .crow.space-mode .crow-helmet { display: block; }
+    .item { position: absolute; bottom: 50px; width: 30px; height: 20px; background: #FFD700; border: 2px solid #FFA000; border-radius: 4px; z-index: 6; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); animation: floatItem 1s ease-in-out infinite alternate; } .item::after { content: '+1'; font-size: 12px; font-weight: bold; color: #8B4500; } @keyframes floatItem { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .crow { position: absolute; width: 50px; height: 30px; z-index: 20; } .crow-body { position: absolute; top: 5px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; } .crow-head { position: absolute; top: 0; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; } .crow-beak { position: absolute; top: 5px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; } .crow-eye { position: absolute; top: 5px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; } .crow-wing { position: absolute; top: -5px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; } @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
+    .crow-helmet { position: absolute; top: -7px; left: -12px; width: 34px; height: 34px; border-radius: 50%; z-index: 25; display: none; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(200,240,255,0.3) 60%, transparent 90%); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: inset -3px -3px 8px rgba(200,240,255,0.2), 0 0 5px rgba(255,255,255,0.3); } .crow.space-mode .crow-helmet { display: block; }
     .stolen-scene { position: absolute; z-index: 30; pointer-events: none; } .stolen-scene .train-unit { transform: rotate(10deg); }
 
-    /* プレイヤー */ #player-train { position: absolute; left: 100px; height: 40px; z-index: 10; transform-origin: bottom center; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; transition: transform 0.1s; } #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; } .train-unit { position: relative; width: 54px; height: 40px; flex-shrink: 0; } .train-body { width: 100%; height: 28px; background-color: #4DB6AC; border-radius: 6px; border: 2px solid #004D40; position: absolute; bottom: 4.5px; left: 0; display: flex; justify-content: space-evenly; align-items: center; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); box-sizing: border-box; z-index: 2; transition: box-shadow 1s ease, border-color 1s ease; } .train-body::before { content: ''; position: absolute; top: -5px; left: 2px; width: 46px; height: 5px; background-color: #004D40; border-radius: 3px 3px 0 0; } .window { width: 8px; height: 8px; background-color: #FFF9C4; border: 1px solid #004D40; border-radius: 2px; } .wheels-container { position: absolute; bottom: 0; width: 100%; height: 9px; display: flex; justify-content: space-between; padding: 0 8px; box-sizing: border-box; z-index: 1; } .wheel { width: 9px; height: 9px; background-color: #FFC107; border: 1.5px solid #FF6F00; border-radius: 50%; } .smoke { position: absolute; top: -15px; right: 5px; width: 10px; height: 10px; background: white; border-radius: 50%; opacity: 0; z-index: 0; display: none; } .train-unit.head .smoke { display: block; } #player-train.poyo .head .smoke { animation: smokeAnim 1s ease-out infinite; } @keyframes poyoPoyo { 0% { transform: scale(1, 1); } 100% { transform: scale(0.95, 1.05); } } @keyframes smokeAnim { 0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); } 100% { opacity: 0; transform: scale(1.5) translate(-10px, -20px); } } @keyframes landBounce { 0% { transform: scale(1, 1); } 30% { transform: scale(1.1, 0.9); } 60% { transform: scale(0.95, 1.05); } 100% { transform: scale(1, 1); } } .landing { animation: landBounce 0.4s ease-out !important; } .get-effect { position: absolute; color: #FFD700; font-weight: bold; font-size: 20px; animation: floatUp 0.8s ease-out forwards; pointer-events: none; z-index: 20; text-shadow: 1px 1px 0 #000; } @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+    #player-train { position: absolute; left: 100px; height: 40px; z-index: 10; transform-origin: bottom center; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; transition: transform 0.1s; } #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; } .train-unit { position: relative; width: 54px; height: 40px; flex-shrink: 0; } .train-body { width: 100%; height: 28px; background-color: #4DB6AC; border-radius: 6px; border: 2px solid #004D40; position: absolute; bottom: 4.5px; left: 0; display: flex; justify-content: space-evenly; align-items: center; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); box-sizing: border-box; z-index: 2; transition: box-shadow 1s ease, border-color 1s ease; } .train-body::before { content: ''; position: absolute; top: -5px; left: 2px; width: 46px; height: 5px; background-color: #004D40; border-radius: 3px 3px 0 0; } .window { width: 8px; height: 8px; background-color: #FFF9C4; border: 1px solid #004D40; border-radius: 2px; } .wheels-container { position: absolute; bottom: 0; width: 100%; height: 9px; display: flex; justify-content: space-between; padding: 0 8px; box-sizing: border-box; z-index: 1; } .wheel { width: 9px; height: 9px; background-color: #FFC107; border: 1.5px solid #FF6F00; border-radius: 50%; } .smoke { position: absolute; top: -15px; right: 5px; width: 10px; height: 10px; background: white; border-radius: 50%; opacity: 0; z-index: 0; display: none; } .train-unit.head .smoke { display: block; } #player-train.poyo .head .smoke { animation: smokeAnim 1s ease-out infinite; } @keyframes poyoPoyo { 0% { transform: scale(1, 1); } 100% { transform: scale(0.95, 1.05); } } @keyframes smokeAnim { 0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); } 100% { opacity: 0; transform: scale(1.5) translate(-10px, -20px); } } @keyframes landBounce { 0% { transform: scale(1, 1); } 30% { transform: scale(1.1, 0.9); } 60% { transform: scale(0.95, 1.05); } 100% { transform: scale(1, 1); } } .landing { animation: landBounce 0.4s ease-out !important; } .get-effect { position: absolute; color: #FFD700; font-weight: bold; font-size: 20px; animation: floatUp 0.8s ease-out forwards; pointer-events: none; z-index: 20; text-shadow: 1px 1px 0 #000; } @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
     #carriage-count-display { position: absolute; top: 20px; left: 20px; font-size: 20px; font-weight: bold; color: #333; z-index: 20; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 10px; }
 </style>
 </head>
 <body>
 <div id="game-screen">
-    <div class="cloud c1"></div><div class="cloud c2"></div>
-    <div id="stars-container"></div><div class="moon"></div>
-    <div id="carriage-count-display">車両: 1</div>
-    <div id="obstacles-container"></div>
-    <div id="sky-container"></div> <div id="player-train" class="poyo"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div id="stars-container"></div><div class="moon"></div><div id="carriage-count-display">車両: 1</div><div id="obstacles-container"></div><div id="sky-container"></div><div id="player-train" class="poyo"></div>
 </div>
 <script>
-    const gameScreen = document.getElementById('game-screen');
-    const playerTrain = document.getElementById('player-train');
-    const obstaclesContainer = document.getElementById('obstacles-container');
-    const skyContainer = document.getElementById('sky-container');
-    const starsContainer = document.getElementById('stars-container');
-    const carriageCountDisplay = document.getElementById('carriage-count-display');
-    const root = document.documentElement;
-    const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; const PLAYER_X = 100;
-    const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
+    const gameScreen = document.getElementById('game-screen'); const playerTrain = document.getElementById('player-train'); const obstaclesContainer = document.getElementById('obstacles-container'); const skyContainer = document.getElementById('sky-container'); const starsContainer = document.getElementById('stars-container'); const carriageCountDisplay = document.getElementById('carriage-count-display'); const root = document.documentElement;
+    const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; const PLAYER_X = 100; const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
     let isGameRunning = false; let animationId; let playerY = BRIDGE_HEIGHT; let playerVy = 0; let isGrounded = true; let isRespawning = false; let isGalaxyMode = false;
     let obstacles = []; let items = []; let crows = []; let stolenScenes = []; let carriageCount = 0;
 
     function createStars() { for (let i = 0; i < 20; i++) { const star = document.createElement('div'); star.classList.add('star', 'drawn'); star.style.left = `${Math.random() * 95}%`; star.style.top = `${Math.random() * 60}%`; const scale = 0.8 + Math.random() * 0.5; star.style.transform = `scale(${scale})`; star.style.animationDelay = `${Math.random() * 3}s`; starsContainer.appendChild(star); } for (let i = 0; i < 50; i++) { const star = document.createElement('div'); star.classList.add('star'); star.style.width = '3px'; star.style.height = '3px'; star.style.left = `${Math.random() * 100}%`; star.style.top = `${Math.random() * 80}%`; star.style.animation = `twinkle ${1 + Math.random()}s infinite alternate`; starsContainer.appendChild(star); } } createStars();
-
-    function toggleGalaxyMode(enable) {
-        if (isGalaxyMode === enable) return; isGalaxyMode = enable;
-        if (enable) {
-            gameScreen.classList.add('galaxy-mode'); currentGravity = GRAVITY_NIGHT;
-            root.style.setProperty('--current-sky-top', 'var(--sky-top-night)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-night)'); root.style.setProperty('--current-water-top', 'var(--water-top-night)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-night)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-night)');
-            crows.forEach(crow => crow.element.classList.add('space-mode'));
-        } else {
-            gameScreen.classList.remove('galaxy-mode'); currentGravity = GRAVITY_DAY;
-            root.style.setProperty('--current-sky-top', 'var(--sky-top-day)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-day)'); root.style.setProperty('--current-water-top', 'var(--water-top-day)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-day)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-day)');
-            crows.forEach(crow => crow.element.classList.remove('space-mode'));
-        }
-    }
+    function toggleGalaxyMode(enable) { if (isGalaxyMode === enable) return; isGalaxyMode = enable; if (enable) { gameScreen.classList.add('galaxy-mode'); currentGravity = GRAVITY_NIGHT; root.style.setProperty('--current-sky-top', 'var(--sky-top-night)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-night)'); root.style.setProperty('--current-water-top', 'var(--water-top-night)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-night)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-night)'); crows.forEach(crow => crow.element.classList.add('space-mode')); } else { gameScreen.classList.remove('galaxy-mode'); currentGravity = GRAVITY_DAY; root.style.setProperty('--current-sky-top', 'var(--sky-top-day)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-day)'); root.style.setProperty('--current-water-top', 'var(--water-top-day)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-day)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-day)'); crows.forEach(crow => crow.element.classList.remove('space-mode')); } }
     function createTrainUnitHTML(isHead) { return `<div class="train-unit ${isHead ? 'head' : 'wagon'}"><div class="smoke"></div><div class="wheels-container"><div class="wheel"></div><div class="wheel"></div></div><div class="train-body"><div class="window"></div><div class="window"></div><div class="window"></div></div></div>`; }
     function renderTrain() { playerTrain.innerHTML = ''; playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(true)); for (let i = 0; i < carriageCount; i++) { playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(false)); } carriageCountDisplay.textContent = `車両: ${carriageCount + 1}`; if (carriageCount + 1 >= 4) { toggleGalaxyMode(true); } else { toggleGalaxyMode(false); } }
-    function initGame() {
-        isGameRunning = true; isRespawning = false; playerTrain.classList.add('poyo'); playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true; updatePlayerPosition();
-        obstacles.forEach(obs => obs.element.remove()); obstacles = []; items.forEach(item => item.element.remove()); items = []; crows.forEach(crow => crow.element.remove()); crows = []; stolenScenes.forEach(s => s.element.remove()); stolenScenes = [];
-        carriageCount = 0; renderTrain(); createObstacle(0, 2000, 'bridge'); if (animationId) cancelAnimationFrame(animationId); gameLoop();
-    }
+    function initGame() { isGameRunning = true; isRespawning = false; playerTrain.classList.add('poyo'); playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true; updatePlayerPosition(); obstacles.forEach(obs => obs.element.remove()); obstacles = []; items.forEach(item => item.element.remove()); items = []; crows.forEach(crow => crow.element.remove()); crows = []; stolenScenes.forEach(s => s.element.remove()); stolenScenes = []; carriageCount = 0; renderTrain(); createObstacle(0, 2000, 'bridge'); if (animationId) cancelAnimationFrame(animationId); gameLoop(); }
     function createCrowHTML() { return `<div class="crow-helmet"></div><div class="crow-head"></div><div class="crow-beak"></div><div class="crow-body"></div><div class="crow-wing"></div><div class="crow-eye"></div>`; }
     function spawnCrow() { const element = document.createElement('div'); element.classList.add('crow'); if (isGalaxyMode) element.classList.add('space-mode'); element.innerHTML = createCrowHTML(); const startX = gameScreen.offsetWidth + 50; const startY = Math.random() * 200 + 350; element.style.left = `${startX}px`; element.style.bottom = `${startY}px`; skyContainer.appendChild(element); const targetX = PLAYER_X + 20; const targetY = BRIDGE_HEIGHT + 20; const speed = 4 + Math.random() * 2; const dx = targetX - startX; const dy = targetY - startY; const distance = Math.sqrt(dx*dx + dy*dy); crows.push({ element, x: startX, y: startY, vx: (dx/distance)*speed, vy: (dy/distance)*speed, state: 'attack' }); }
     function createStolenScene(x, y) { const container = document.createElement('div'); container.classList.add('stolen-scene'); const crowDiv = document.createElement('div'); crowDiv.classList.add('crow'); if (isGalaxyMode) crowDiv.classList.add('space-mode'); crowDiv.innerHTML = createCrowHTML(); const trainDiv = document.createElement('div'); trainDiv.innerHTML = createTrainUnitHTML(true); trainDiv.style.position = 'absolute'; trainDiv.style.top = '20px'; trainDiv.style.left = '5px'; container.appendChild(crowDiv); container.appendChild(trainDiv); container.style.left = `${x}px`; container.style.bottom = `${y}px`; skyContainer.appendChild(container); stolenScenes.push({ element: container, x: x, y: y, vx: 3, vy: 5 }); }
@@ -175,28 +154,21 @@ html_code = """
     function respawn() { if (isRespawning) return; isRespawning = true; carriageCount = 0; renderTrain(); setTimeout(() => { playerY = 600; playerVy = 0; updatePlayerPosition(); isRespawning = false; }, 1000); }
     function showGetEffect() { const effect = document.createElement('div'); effect.classList.add('get-effect'); effect.textContent = 'CONNECT!'; effect.style.left = `${PLAYER_X}px`; effect.style.top = `${gameScreen.offsetHeight - playerY - 80}px`; gameScreen.appendChild(effect); setTimeout(() => effect.remove(), 800); }
 
-    // ★ロケットと流れ星を生成する関数★
+    // ★ロケットと流れ星を生成する関数（修正版）★
     function spawnSpaceObjects() {
-        if (!isGalaxyMode) return; // 宇宙モードのみ
-
-        // ロケット (低確率)
+        if (!isGalaxyMode) return;
+        // ロケット (左下から右上へ)
         if (Math.random() < 0.002) {
             const rocket = document.createElement('div');
             rocket.classList.add('rocket');
-            rocket.innerHTML = '<div class="rocket-body"></div><div class="rocket-fin top"></div><div class="rocket-fin bottom"></div><div class="rocket-window"></div><div class="rocket-fire"></div>';
-            rocket.style.top = `${Math.random() * 300 + 50}px`; // 上の方を飛ぶ
+            // パーツの順番を変更（炎が後ろになるように）
+            rocket.innerHTML = '<div class="rocket-fire"></div><div class="rocket-body"></div><div class="rocket-fin top"></div><div class="rocket-fin bottom"></div><div class="rocket-window"></div>';
             skyContainer.appendChild(rocket);
-            // アニメーション終了後に削除
             setTimeout(() => rocket.remove(), 8000);
         }
-        // 流れ星 (中確率)
+        // 流れ星
         if (Math.random() < 0.008) {
-            const shootingStar = document.createElement('div');
-            shootingStar.classList.add('shooting-star');
-            shootingStar.style.top = `${Math.random() * 200}px`;
-            shootingStar.style.right = `${Math.random() * 200 - 200}px`; // 画面外右上から
-            skyContainer.appendChild(shootingStar);
-            setTimeout(() => shootingStar.remove(), 3000);
+            const shootingStar = document.createElement('div'); shootingStar.classList.add('shooting-star'); shootingStar.style.top = `${Math.random() * 200}px`; shootingStar.style.right = `${Math.random() * 200 - 200}px`; skyContainer.appendChild(shootingStar); setTimeout(() => shootingStar.remove(), 3000);
         }
     }
 
@@ -204,39 +176,13 @@ html_code = """
         if (!isGameRunning) return;
         if (!isRespawning) { playerVy += currentGravity; playerY -= playerVy; }
         if (carriageCount >= 1 && crows.length === 0 && !isRespawning && Math.random() < 0.005) spawnCrow();
-        
-        spawnSpaceObjects(); // ★毎フレーム呼び出して確率で生成★
-
-        crows.forEach((crow, index) => {
-            crow.x += crow.vx; crow.y += crow.vy; crow.element.style.left = `${crow.x}px`; crow.element.style.bottom = `${crow.y}px`;
-            if (crow.state === 'attack') {
-                const dx = (crow.x + 25) - (PLAYER_X + 27); const dy = (crow.y + 15) - (playerY + 20);
-                if (Math.sqrt(dx*dx + dy*dy) < 40 && !isRespawning) { carriageCount--; renderTrain(); createStolenScene(PLAYER_X, playerY); crow.element.remove(); crows.splice(index, 1); return; }
-            }
-            if (crow.x < -100 || crow.y > 800 || crow.y < -50) { crow.element.remove(); crows.splice(index, 1); }
-        });
+        spawnSpaceObjects();
+        crows.forEach((crow, index) => { crow.x += crow.vx; crow.y += crow.vy; crow.element.style.left = `${crow.x}px`; crow.element.style.bottom = `${crow.y}px`; if (crow.state === 'attack') { const dx = (crow.x + 25) - (PLAYER_X + 27); const dy = (crow.y + 15) - (playerY + 20); if (Math.sqrt(dx*dx + dy*dy) < 40 && !isRespawning) { carriageCount--; renderTrain(); createStolenScene(PLAYER_X, playerY); crow.element.remove(); crows.splice(index, 1); return; } } if (crow.x < -100 || crow.y > 800 || crow.y < -50) { crow.element.remove(); crows.splice(index, 1); } });
         stolenScenes.forEach((scene, index) => { scene.x += scene.vx; scene.y += scene.vy; scene.element.style.left = `${scene.x}px`; scene.element.style.bottom = `${scene.y}px`; if (scene.y > 800) { scene.element.remove(); stolenScenes.splice(index, 1); } });
-        let currentGround = null;
-        obstacles.forEach((obs, index) => {
-            obs.left -= SCROLL_SPEED; obs.element.style.left = `${obs.left}px`;
-            if (PLAYER_X + 44 > obs.left && PLAYER_X + 10 < obs.left + obs.width) { if (obs.type === 'bridge') currentGround = obs; }
-            if (obs.left + obs.width < -100) { obs.element.remove(); obstacles.splice(index, 1); }
-        });
-        items.forEach((item, index) => {
-            item.left -= SCROLL_SPEED; item.element.style.left = `${item.left}px`;
-            if (item.left < PLAYER_X + 54 && item.left + 30 > PLAYER_X) {
-                if (playerY < BRIDGE_HEIGHT + 70 && playerY + 40 > BRIDGE_HEIGHT + 30) { item.element.remove(); items.splice(index, 1); carriageCount++; renderTrain(); showGetEffect(); }
-            }
-            if (item.left < -50) { item.element.remove(); items.splice(index, 1); }
-        });
+        let currentGround = null; obstacles.forEach((obs, index) => { obs.left -= SCROLL_SPEED; obs.element.style.left = `${obs.left}px`; if (PLAYER_X + 44 > obs.left && PLAYER_X + 10 < obs.left + obs.width) { if (obs.type === 'bridge') currentGround = obs; } if (obs.left + obs.width < -100) { obs.element.remove(); obstacles.splice(index, 1); } });
+        items.forEach((item, index) => { item.left -= SCROLL_SPEED; item.element.style.left = `${item.left}px`; if (item.left < PLAYER_X + 54 && item.left + 30 > PLAYER_X) { if (playerY < BRIDGE_HEIGHT + 70 && playerY + 40 > BRIDGE_HEIGHT + 30) { item.element.remove(); items.splice(index, 1); carriageCount++; renderTrain(); showGetEffect(); } } if (item.left < -50) { item.element.remove(); items.splice(index, 1); } });
         spawnNextObstacle();
-        if (!isRespawning) {
-            if (currentGround && playerY <= BRIDGE_HEIGHT && playerY > BRIDGE_HEIGHT - 30 && playerVy >= 0) {
-                if (!isGrounded) { playerTrain.classList.remove('poyo'); playerTrain.classList.add('landing'); setTimeout(() => { playerTrain.classList.remove('landing'); playerTrain.classList.add('poyo'); }, 400); }
-                playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true;
-            } else if (!currentGround && playerY <= BRIDGE_HEIGHT && isGrounded) { isGrounded = false; }
-            if (playerY < -100) respawn();
-        }
+        if (!isRespawning) { if (currentGround && playerY <= BRIDGE_HEIGHT && playerY > BRIDGE_HEIGHT - 30 && playerVy >= 0) { if (!isGrounded) { playerTrain.classList.remove('poyo'); playerTrain.classList.add('landing'); setTimeout(() => { playerTrain.classList.remove('landing'); playerTrain.classList.add('poyo'); }, 400); } playerY = BRIDGE_HEIGHT; playerVy = 0; isGrounded = true; } else if (!currentGround && playerY <= BRIDGE_HEIGHT && isGrounded) { isGrounded = false; } if (playerY < -100) respawn(); }
         updatePlayerPosition(); animationId = requestAnimationFrame(gameLoop);
     }
     gameScreen.addEventListener('mousedown', jump); document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); jump(); } }); gameScreen.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, { passive: false }); initGame();
@@ -248,4 +194,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=650)
 
-st.write("宇宙モードでしばらく遊んでると、ロケットや流れ星が見られるかも！？お楽しみに！🚀🌠")
+st.write("今度こそロケットは正しい向きで飛んでいくよ！🚀💨 宇宙モードで確認してみてね！")
