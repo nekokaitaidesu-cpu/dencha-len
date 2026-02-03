@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車だっち", layout="wide")
 
 # タイトル
-st.title("🚂 地面にピタッ！豆粒電車だっち 🍄")
-st.write("タイヤが小さくなって、地面をしっかり走ってるよ！")
+st.title("🚂 ぴったり接地！3つ窓の豆粒電車だっち 🍄")
+st.write("タイヤを小さくして回転をストップ！地面に綺麗に着地させたよ！")
 
 # HTML/CSSコード
 html_code = """
@@ -55,15 +55,16 @@ html_code = """
         bottom: 0;
         left: 0;
         width: 200%;
-        height: 280px;
+        height: 280px; /* この高さに合わせて電車を配置するよ */
         background-color: #8B4513;
         background-image: radial-gradient(circle at bottom center, transparent 65%, #A0522D 66%);
         background-size: 200px 200px;
         background-repeat: repeat-x;
         background-position: bottom;
         animation: scrollBridge 3s linear infinite;
+        z-index: 5;
     }
-    /* 橋の上の線路部分（高さ30px） */
+    /* 線路の表面 */
     .bridge::before {
         content: '';
         position: absolute;
@@ -75,47 +76,52 @@ html_code = """
         border-bottom: 8px solid #4e342e;
     }
 
-    /* --- 電車 --- */
+    /* --- 電車コンテナ --- */
     .train-container {
         position: absolute;
-        /* 橋の高さ(280px) + 線路の高さ(30px) - タイヤの高さ(約10px) で調整 */
-        bottom: 300px; /* 地面に接地するように位置を調整したよ！ */
-        width: 50px;
+        /* 橋の高さ(280px) + 線路の上の微調整 */
+        bottom: 280px; 
+        width: 54px;  /* 3つ窓が入るように少し幅を確保 */
         height: 40px;
         z-index: 10;
+        /* 重心の位置を下にして、地面を踏ん張ってる感じに */
+        transform-origin: bottom center;
         animation: poyoPoyo 0.5s steps(3) infinite alternate;
     }
 
     /* 電車のボディ */
     .train-body {
         width: 100%;
-        height: 70%;
+        height: 28px; /* タイヤの分を引いて高さを設定 */
         background-color: #4DB6AC;
-        border-radius: 8px;
+        border-radius: 6px;
         border: 2px solid #004D40;
-        position: relative;
+        position: absolute;
+        bottom: 9px; /* タイヤの上にのっかる位置 */
+        left: 0;
         display: flex;
         justify-content: space-evenly;
         align-items: center;
         box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        box-sizing: border-box;
     }
 
     /* 屋根 */
     .train-body::before {
         content: '';
         position: absolute;
-        top: -6px;
-        left: 3px;
-        width: 44px;
-        height: 6px;
+        top: -5px;
+        left: 2px;
+        width: 46px;
+        height: 5px;
         background-color: #004D40;
         border-radius: 3px 3px 0 0;
     }
 
-    /* 窓 */
+    /* 窓（3つ） */
     .window {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         background-color: #FFF9C4;
         border: 1px solid #004D40;
         border-radius: 2px;
@@ -124,49 +130,36 @@ html_code = """
     /* タイヤコンテナ */
     .wheels-container {
         position: absolute;
-        bottom: 0px;
+        bottom: 0; /* コンテナの底辺に合わせる＝線路に着地 */
         width: 100%;
-        height: 10px; /* タイヤに合わせて少し低く */
+        height: 9px; /* タイヤの高さ */
         display: flex;
-        justify-content: space-between;
-        padding: 0 4px; /* 左右の余白を調整して配置を整えた */
+        justify-content: space-between; /* 左右に配置 */
+        padding: 0 4px; /* 端からの距離 */
         box-sizing: border-box;
     }
 
-    /* 左右のタイヤグループ（きゅっとくっつける） */
+    /* 左右のタイヤグループ */
     .wheel-group {
         display: flex;
-        gap: 1px; /* タイヤ間の隙間を狭くしたよ！ */
+        gap: 1px; /* タイヤ同士をきゅっとくっつける */
     }
 
-    /* 黄色い小さいタイヤ（さらに小さく） */
+    /* タイヤ（回転なし） */
     .wheel {
-        width: 8px;  /* サイズダウン */
-        height: 8px; /* サイズダウン */
-        background-color: #FFC107;
-        border: 1px solid #FF6F00;
+        width: 8px; /* さらに小さく */
+        height: 8px;
+        background-color: #FFC107; /* 黄色 */
+        border: 1.5px solid #FF6F00; /* オレンジ枠 */
         border-radius: 50%;
-        animation: spinWheels 0.5s linear infinite;
-        position: relative;
+        /* animation: none; 回転停止 */
     }
     
-    /* タイヤの回転マーク */
-    .wheel::after {
-        content: '';
-        position: absolute;
-        top: 1px; /* 位置調整 */
-        left: 3px; /* 位置調整 */
-        width: 2px;
-        height: 2px;
-        background-color: #FF6F00;
-        border-radius: 50%;
-    }
-
     /* 煙 */
     .smoke {
         position: absolute;
-        top: -10px;
-        right: 2px;
+        top: -15px;
+        right: 5px;
         width: 10px;
         height: 10px;
         background: white;
@@ -184,15 +177,14 @@ html_code = """
         0% { transform: translateX(130%); }
         100% { transform: translateX(-200%); }
     }
+    
+    /* ぽよぽよ（接地感を出すためにY軸移動は控えめに、伸縮メインで） */
     @keyframes poyoPoyo {
         0% { transform: translateY(0) scale(1, 1); }
-        50% { transform: translateY(-1px) scale(1.05, 0.95); } /* 上下の動きを控えめに */
-        100% { transform: translateY(1px) scale(0.95, 1.05); } /* 上下の動きを控えめに */
+        50% { transform: translateY(0.5px) scale(1.03, 0.97); } /* 少しつぶれる */
+        100% { transform: translateY(-0.5px) scale(0.98, 1.02); } /* 少し伸びる */
     }
-    @keyframes spinWheels {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+
     @keyframes smoke {
         0% { opacity: 0.8; transform: scale(0.5) translate(0, 0); }
         100% { opacity: 0; transform: scale(1.5) translate(-10px, -20px); }
@@ -211,6 +203,7 @@ html_code = """
         <div class="train-container">
             <div class="smoke"></div>
             <div class="train-body">
+                <div class="window"></div>
                 <div class="window"></div>
                 <div class="window"></div>
             </div>
@@ -234,4 +227,4 @@ html_code = """
 # HTMLを描画
 components.html(html_code, height=600)
 
-st.write("タイヤがきゅっとなって、地面をしっかり捉えてる感じが出たかな？🍄")
+st.write("ご希望の「接地」位置ピッタリに調整したよ！タイヤも可愛くなっただっち🍄")
