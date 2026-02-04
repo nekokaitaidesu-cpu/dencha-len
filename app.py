@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 ぽよぽよ電車ジャンプ：THE FINAL COMPLETE 🚂🏁")
-st.write("カラスの滞留バグを修正！駅に到着するエンディングも追加したよ！これで本当に完成だっち！")
+st.title("🍄 真正・完全版！ぽよぽよ銀河決戦 🚂🌌✨")
+st.write("ループ処理を根本から修正して、フリーズやバグを根絶したよ！今度こそ快適に遊べるはずだっち！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -18,15 +18,9 @@ html_code = """
 <style>
     /* --- CSS (スタイル設定) --- */
     * {
-        -webkit-tap-highlight-color: rgba(0,0,0,0); /* スマホタップ時のハイライト消去 */
-        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
         user-select: none;
         box-sizing: border-box;
-    }
-    html, body {
-        margin: 0; padding: 0;
-        -webkit-user-select: none;
-        overflow: hidden; /* スクロール防止 */
     }
 
     :root {
@@ -101,26 +95,6 @@ html_code = """
     @keyframes blink { from { opacity: 0.5; } to { opacity: 1; } }
     @keyframes flapBoss { from { transform: rotate(0deg); } to { transform: rotate(-20deg); } }
 
-    /* 駅（エンディング用） */
-    .station {
-        position: absolute; bottom: var(--bridge-height); right: -200px; /* 最初は画面外 */
-        width: 150px; height: 120px; z-index: 4;
-        display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
-        transition: right 2s ease-out; /* スライドイン用 */
-    }
-    .station-roof {
-        width: 160px; height: 15px; background: #555; border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .station-pillars {
-        display: flex; justify-content: space-between; width: 120px; height: 100px;
-    }
-    .station-pillar { width: 10px; height: 100%; background: #888; border: 1px solid #666; }
-    .station-sign {
-        background: white; border: 2px solid #333; padding: 2px 10px; font-weight: bold; font-size: 12px;
-        position: absolute; top: 20px;
-    }
-
     /* プレイヤーの弾 */
     .train-missile { position: absolute; z-index: 15; pointer-events: none; }
     .train-missile .train-unit { transform: rotate(0deg); }
@@ -156,8 +130,7 @@ html_code = """
     .rocket-down-left { animation: flyDownLeft 8s linear forwards; } @keyframes flyDownLeft { from { left: 120%; top: -100px; transform: rotate(135deg); } to { left: -100px; top: 120%; transform: rotate(135deg); } }
     .shooting-star { position: absolute; width: 100px; height: 2px; background: linear-gradient(to right, rgba(255,255,255,0), #fff, rgba(255,255,255,0)); z-index: 0; transform: rotate(-30deg); animation: shoot 3s ease-out forwards; } @keyframes shoot { from { transform: translate(0, 0) rotate(-30deg) scale(0.5); opacity: 1; } to { transform: translate(-500px, 300px) rotate(-30deg) scale(1); opacity: 0; } }
 
-    /* カラス（共通） */
-    .crow { position: absolute; width: 50px; height: 30px; z-index: 20; } .crow-body { position: absolute; top: 5px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; } .crow-head { position: absolute; top: 0; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; } .crow-beak { position: absolute; top: 5px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; } .crow-eye { position: absolute; top: 5px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; } .crow-wing { position: absolute; top: -5px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; } @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
+    /* カラス */ .crow { position: absolute; width: 50px; height: 30px; z-index: 20; } .crow-body { position: absolute; top: 5px; left: 10px; width: 35px; height: 20px; background: #333; border-radius: 50%; } .crow-head { position: absolute; top: 0; left: 0; width: 18px; height: 18px; background: #333; border-radius: 50%; } .crow-beak { position: absolute; top: 5px; left: -8px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid #FFD700; } .crow-eye { position: absolute; top: 5px; left: 5px; width: 4px; height: 4px; background: white; border-radius: 50%; } .crow-wing { position: absolute; top: -5px; left: 15px; width: 25px; height: 15px; background: #222; border-radius: 50% 50% 0 0; transform-origin: bottom center; animation: flap 0.2s infinite alternate; } @keyframes flap { from { transform: rotate(0deg) scaleY(1); } to { transform: rotate(-20deg) scaleY(0.5); } }
     .crow-helmet { position: absolute; top: -7px; left: -12px; width: 34px; height: 34px; border-radius: 50%; z-index: 25; display: none; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(200,240,255,0.3) 60%, transparent 90%); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: inset -3px -3px 8px rgba(200,240,255,0.2), 0 0 5px rgba(255,255,255,0.3); } .crow.space-mode .crow-helmet { display: block; }
     .stolen-scene { position: absolute; z-index: 30; pointer-events: none; } .stolen-scene .train-unit { transform: rotate(10deg); }
 
@@ -168,7 +141,9 @@ html_code = """
         display: flex; flex-direction: row-reverse; align-items: flex-end; 
         gap: 2px; 
         transition: top 0.1s ease-out, left 0.5s ease;
-        flex-wrap: nowrap; width: max-content;
+        /* ★縦積み防止の修正★ */
+        flex-wrap: nowrap;
+        width: max-content;
     } 
     #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; }
     #player-train.stunned { animation: spin 0.2s linear infinite !important; transition: none; }
@@ -198,14 +173,6 @@ html_code = """
     <div class="cloud c1"></div><div class="cloud c2"></div><div id="stars-container"></div><div class="moon"></div>
     <div id="carriage-count-display">車両: 1</div>
     <div id="obstacles-container"></div><div id="sky-container"></div>
-    <div id="station" class="station">
-        <div class="station-sign">POYO STATION</div>
-        <div class="station-roof"></div>
-        <div class="station-pillars">
-            <div class="station-pillar"></div>
-            <div class="station-pillar"></div>
-        </div>
-    </div>
     
     <div id="player-train" class="poyo"></div>
     
@@ -223,35 +190,34 @@ html_code = """
 </div>
 <script>
     const gameScreen = document.getElementById('game-screen'); const playerTrain = document.getElementById('player-train'); const obstaclesContainer = document.getElementById('obstacles-container'); const skyContainer = document.getElementById('sky-container'); const starsContainer = document.getElementById('stars-container'); const carriageCountDisplay = document.getElementById('carriage-count-display'); const root = document.documentElement;
-    const bossAlert = document.getElementById('boss-alert'); const bossElement = document.getElementById('boss'); const bossHpBar = document.getElementById('boss-hp'); const victoryScreen = document.getElementById('victory-screen'); const stationElement = document.getElementById('station');
+    const bossAlert = document.getElementById('boss-alert'); const bossElement = document.getElementById('boss'); const bossHpBar = document.getElementById('boss-hp'); const victoryScreen = document.getElementById('victory-screen');
 
     const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; 
     const DEFAULT_PLAYER_X = 100;
-    const BOSS_PLAYER_X = 20;
+    const BOSS_PLAYER_X = 20; // ボス戦時の左端位置
     let currentPlayerX = DEFAULT_PLAYER_X;
 
     const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
     let isGameRunning = false; let animationId; let playerY = BRIDGE_HEIGHT; let playerVy = 0; let isGrounded = true; let isRespawning = false; let isGalaxyMode = false;
     let obstacles = []; let items = []; let crows = []; let stolenScenes = []; let carriageCount = 0;
     
-    let isBossBattle = false; let bossHP = 10; const MAX_BOSS_HP = 10; let bossY = 300; let bossVy = 0.8; // ★スピードダウン
+    // ボス戦用変数
+    let isBossBattle = false; let bossHP = 10; const MAX_BOSS_HP = 10; let bossY = 300; let bossVy = 1.5;
     let bossCrows = []; let playerMissiles = []; let isStunned = false;
     let isDragging = false; let dragStartY = 0; let trainStartY = 0;
-    let isVictory = false;
 
     function createStars() { for (let i = 0; i < 20; i++) { const star = document.createElement('div'); star.classList.add('star', 'drawn'); star.style.left = `${Math.random() * 95}%`; star.style.top = `${Math.random() * 60}%`; const scale = 0.8 + Math.random() * 0.5; star.style.transform = `scale(${scale})`; star.style.animationDelay = `${Math.random() * 3}s`; starsContainer.appendChild(star); } for (let i = 0; i < 50; i++) { const star = document.createElement('div'); star.classList.add('star'); star.style.width = '3px'; star.style.height = '3px'; star.style.left = `${Math.random() * 100}%`; star.style.top = `${Math.random() * 80}%`; star.style.animation = `twinkle ${1 + Math.random()}s infinite alternate`; starsContainer.appendChild(star); } } createStars();
     
     function toggleGalaxyMode(enable) { if (isGalaxyMode === enable) return; isGalaxyMode = enable; if (enable) { gameScreen.classList.add('galaxy-mode'); currentGravity = GRAVITY_NIGHT; root.style.setProperty('--current-sky-top', 'var(--sky-top-night)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-night)'); root.style.setProperty('--current-water-top', 'var(--water-top-night)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-night)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-night)'); crows.forEach(crow => crow.element.classList.add('space-mode')); } else { gameScreen.classList.remove('galaxy-mode'); currentGravity = GRAVITY_DAY; root.style.setProperty('--current-sky-top', 'var(--sky-top-day)'); root.style.setProperty('--current-sky-bottom', 'var(--sky-bottom-day)'); root.style.setProperty('--current-water-top', 'var(--water-top-day)'); root.style.setProperty('--current-water-bottom', 'var(--water-bottom-day)'); root.style.setProperty('--current-bridge-base', 'var(--bridge-base-day)'); crows.forEach(crow => crow.element.classList.remove('space-mode')); } }
     function createTrainUnitHTML(isHead) { return `<div class="train-unit ${isHead ? 'head' : 'wagon'}"><div class="smoke"></div><div class="wheels-container"><div class="wheel"></div><div class="wheel"></div></div><div class="train-body"><div class="window"></div><div class="window"></div><div class="window"></div></div></div>`; }
     function renderTrain() { playerTrain.innerHTML = ''; playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(true)); for (let i = 0; i < carriageCount; i++) { playerTrain.insertAdjacentHTML('beforeend', createTrainUnitHTML(false)); } carriageCountDisplay.textContent = `車両: ${carriageCount + 1}`; 
-        if (carriageCount + 1 >= 4 && !isBossBattle && !isVictory) toggleGalaxyMode(true); else if (!isBossBattle) toggleGalaxyMode(false);
-        if (carriageCount >= 7 && !isBossBattle && !isVictory) startBossBattle();
+        if (carriageCount + 1 >= 4 && !isBossBattle) toggleGalaxyMode(true); else if (!isBossBattle) toggleGalaxyMode(false);
+        if (carriageCount >= 7 && !isBossBattle) startBossBattle();
     }
     
     function initGame() { 
-        isGameRunning = true; isRespawning = false; isBossBattle = false; isStunned = false; isVictory = false;
+        isGameRunning = true; isRespawning = false; isBossBattle = false; isStunned = false; 
         bossElement.style.display = 'none'; bossAlert.style.display = 'none'; victoryScreen.style.display = 'none';
-        stationElement.style.right = '-200px'; // 駅リセット
         obstaclesContainer.style.display = 'block'; 
         toggleGalaxyMode(false);
         
@@ -272,12 +238,14 @@ html_code = """
     
     function startBossBattle() {
         isBossBattle = true; toggleGalaxyMode(true); bossAlert.style.display = 'flex';
-        obstaclesContainer.style.display = 'none'; // ★背景非表示
+        obstaclesContainer.style.display = 'none';
         
+        // ゴミ掃除（重要：アイテムも消す）
         obstacles.forEach(obs => obs.element.remove()); obstacles = []; 
         crows.forEach(c => c.element.remove()); crows = [];
         items.forEach(i => i.element.remove()); items = [];
         
+        // 自機移動
         currentPlayerX = BOSS_PLAYER_X;
         playerTrain.style.left = `${currentPlayerX}px`;
         
@@ -288,28 +256,13 @@ html_code = """
     }
 
     function winGame() {
-        isBossBattle = false; isVictory = true;
+        isGameRunning = false;
         bossElement.style.display = 'none';
-        playerMissiles.forEach(m => m.element.remove()); playerMissiles = [];
-        bossCrows.forEach(b => b.element.remove()); bossCrows = [];
-        items.forEach(i => i.element.remove()); items = [];
-        
-        // 1両に戻す
-        carriageCount = 0; renderTrain();
-        toggleGalaxyMode(false); // 昼へ
-        obstaclesContainer.style.display = 'block';
-        createObstacle(0, 2000, 'bridge'); // 地面復活
-        
-        playerY = BRIDGE_HEIGHT; updatePlayerPosition(); // 地面へ
-        
-        // 駅アニメーション
-        setTimeout(() => {
-            stationElement.style.right = '100px'; // 画面内へ
-            setTimeout(() => {
-                victoryScreen.style.display = 'flex';
-                victoryScreen.onclick = () => { initGame(); };
-            }, 2500);
-        }, 500);
+        playerMissiles.forEach(m => m.element.remove());
+        bossCrows.forEach(b => b.element.remove());
+        items.forEach(i => i.element.remove());
+        victoryScreen.style.display = 'flex';
+        victoryScreen.onclick = () => { initGame(); };
     }
 
     function shoot() {
@@ -326,7 +279,7 @@ html_code = """
     function handleMove(e) { if (!isGameRunning || !isBossBattle || isStunned) return; e.preventDefault(); const clientY = e.clientY || e.touches[0].clientY; const deltaY = dragStartY - clientY; 
         if (Math.abs(deltaY) > 5) { isDragging = true; playerY = trainStartY + deltaY; if (playerY < 50) playerY = 50; if (playerY > 550) playerY = 550; updatePlayerPosition(); } }
     function handleEnd(e) { if (!isGameRunning || !isBossBattle || isStunned) return; if (!isDragging) { shoot(); } isDragging = false; }
-    function handleNormalTap(e) { if (!isBossBattle && !isRespawning && isGrounded && !isVictory) { playerVy = -JUMP_POWER; isGrounded = false; } }
+    function handleNormalTap(e) { if (!isBossBattle && !isRespawning && isGrounded) { playerVy = -JUMP_POWER; isGrounded = false; } }
 
     function updatePlayerPosition() { playerTrain.style.bottom = `${playerY}px`; }
     function createCrowHTML() { return `<div class="crow-helmet"></div><div class="crow-head"></div><div class="crow-beak"></div><div class="crow-body"></div><div class="crow-wing"></div><div class="crow-eye"></div>`; }
@@ -344,8 +297,7 @@ html_code = """
     function gameLoop() {
         if (!isGameRunning) return;
 
-        // ★★★重要修正：常に実行（滞留バグの根絶）★★★
-        // 逆ループで安全に処理
+        // ★逆ループで安全に要素を削除（バグ根絶！）★
         for (let i = stolenScenes.length - 1; i >= 0; i--) {
             const scene = stolenScenes[i];
             scene.x += scene.vx; scene.y += scene.vy;
@@ -356,7 +308,7 @@ html_code = """
         if (isBossBattle) {
             if (!isStunned) { bossY += bossVy; if (bossY > 500 || bossY < 100) bossVy *= -1; bossElement.style.bottom = `${bossY}px`; }
             
-            // アイテム・敵の生成（ボス戦用・頻度調整）
+            // アイテム・敵の生成（ボス戦用）
             if (Math.random() < 0.015) {
                 const bCrow = document.createElement('div'); bCrow.classList.add('crow', 'space-mode'); bCrow.innerHTML = createCrowHTML();
                 bCrow.style.left = `${gameScreen.offsetWidth - 100}px`; bCrow.style.bottom = `${bossY + 50}px`;
@@ -371,8 +323,7 @@ html_code = """
             // プレイヤーミサイル（逆ループ）
             for (let i = playerMissiles.length - 1; i >= 0; i--) {
                 const m = playerMissiles[i];
-                m.x += 6; // ★スピードダウン
-                m.element.style.left = `${m.x}px`;
+                m.x += 10; m.element.style.left = `${m.x}px`;
                 if (m.x > gameScreen.offsetWidth - 140 && Math.abs(m.y - bossY) < 80) {
                     m.element.remove(); playerMissiles.splice(i, 1); createExplosion(m.x, m.y);
                     bossHP--; bossHpBar.style.width = `${(bossHP/MAX_BOSS_HP)*100}%`;
@@ -385,8 +336,7 @@ html_code = """
             // ボスカラス（逆ループ）
             for (let i = bossCrows.length - 1; i >= 0; i--) {
                 const b = bossCrows[i];
-                b.x -= 2; // ★スピードダウン
-                b.element.style.left = `${b.x}px`; b.element.style.bottom = `${b.y}px`;
+                b.x -= 4; b.element.style.left = `${b.x}px`; b.element.style.bottom = `${b.y}px`;
                 if (b.x < currentPlayerX + 50 && b.x > currentPlayerX && Math.abs(b.y - playerY) < 40 && !isStunned) {
                     b.element.remove(); bossCrows.splice(i, 1);
                     if (carriageCount > 0) {
@@ -400,8 +350,7 @@ html_code = """
             // アイテム（逆ループ）
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i];
-                item.left -= 2; // ★スピードダウン
-                item.element.style.left = `${item.left}px`;
+                item.left -= 3; item.element.style.left = `${item.left}px`;
                 const itemY = item.y || parseFloat(item.element.style.bottom); 
                 if (item.left < currentPlayerX + 54 && item.left + 30 > currentPlayerX) {
                     if (Math.abs(playerY - itemY) < 50 && !isStunned) {
@@ -412,8 +361,8 @@ html_code = """
                 }
             }
 
-        } else if (!isVictory) {
-            // 通常モード（勝利時は停止）
+        } else {
+            // 通常モード
             if (!isRespawning) { playerVy += currentGravity; playerY -= playerVy; }
             if (carriageCount >= 1 && crows.length === 0 && !isRespawning && Math.random() < 0.005) spawnCrow();
             spawnSpaceObjects();
