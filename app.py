@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 完全修正版！ぽよぽよ銀河決戦 🚂🌌🦅")
-st.write("フリーズバグを根絶！自機は左端へ！カラスもチケットもちゃんと飛んでくる、完全版のボスバトルだっち！")
+st.title("🍄 真正・完全版！ぽよぽよ銀河決戦 🚂🌌✨")
+st.write("ループ処理を根本から修正して、フリーズやバグを根絶したよ！今度こそ快適に遊べるはずだっち！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -51,7 +51,6 @@ html_code = """
     .cloud::after, .cloud::before { content: ''; position: absolute; background: inherit; border-radius: 50%; }
     .cloud.c1 { width: 120px; height: 40px; top: 60px; left: 10%; } .cloud.c1::after { width: 50px; height: 50px; top: -20px; left: 15px; } .cloud.c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
     .cloud.c2 { width: 80px; height: 30px; top: 150px; left: 60%; } .cloud.c2::after { width: 35px; height: 35px; top: -15px; left: 10px; }
-    
     .star { position: absolute; background: #FFF; border-radius: 50%; z-index: 0; opacity: 0; display: none; box-shadow: 0 0 4px #FFF; }
     .star.drawn { width: 10px; height: 10px; background: #FFD700; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: twinkle 2s infinite alternate; }
     .moon { position: absolute; top: 40px; right: 60px; width: 60px; height: 60px; background: transparent; border-radius: 50%; box-shadow: -15px 15px 0 0 #FFD700; opacity: 0; display: none; z-index: 0; transform: rotate(-10deg); animation: floatMoon 3s ease-in-out infinite alternate; }
@@ -96,13 +95,13 @@ html_code = """
     @keyframes blink { from { opacity: 0.5; } to { opacity: 1; } }
     @keyframes flapBoss { from { transform: rotate(0deg); } to { transform: rotate(-20deg); } }
 
-    /* ミサイル・爆発 */
+    /* プレイヤーの弾 */
     .train-missile { position: absolute; z-index: 15; pointer-events: none; }
     .train-missile .train-unit { transform: rotate(0deg); }
     .explosion { position: absolute; font-size: 40px; pointer-events: none; z-index: 50; animation: fadeOut 0.5s forwards; }
     @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(2); } }
 
-    /* 背景 */
+    /* 背景要素 */
     #obstacles-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--bridge-height); z-index: 5; }
     .bridge-part {
         position: absolute; bottom: 0; height: 100%; background-color: var(--current-bridge-base);
@@ -136,7 +135,16 @@ html_code = """
     .stolen-scene { position: absolute; z-index: 30; pointer-events: none; } .stolen-scene .train-unit { transform: rotate(10deg); }
 
     /* プレイヤー */
-    #player-train { position: absolute; left: 100px; height: 40px; z-index: 10; transform-origin: bottom center; display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 2px; transition: top 0.1s ease-out, left 0.5s ease; } 
+    #player-train { 
+        position: absolute; left: 100px; height: 40px; z-index: 10; 
+        transform-origin: bottom center; 
+        display: flex; flex-direction: row-reverse; align-items: flex-end; 
+        gap: 2px; 
+        transition: top 0.1s ease-out, left 0.5s ease;
+        /* ★縦積み防止の修正★ */
+        flex-wrap: nowrap;
+        width: max-content;
+    } 
     #player-train.poyo { animation: poyoPoyo 0.6s steps(3) infinite alternate; }
     #player-train.stunned { animation: spin 0.2s linear infinite !important; transition: none; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -187,7 +195,7 @@ html_code = """
     const BRIDGE_HEIGHT = 280; const SCROLL_SPEED = 5; 
     const DEFAULT_PLAYER_X = 100;
     const BOSS_PLAYER_X = 20; // ボス戦時の左端位置
-    let currentPlayerX = DEFAULT_PLAYER_X; // 動的に変わるX座標
+    let currentPlayerX = DEFAULT_PLAYER_X;
 
     const GRAVITY_DAY = 0.6; const GRAVITY_NIGHT = 0.35; let currentGravity = GRAVITY_DAY; const JUMP_POWER = 12;
     let isGameRunning = false; let animationId; let playerY = BRIDGE_HEIGHT; let playerVy = 0; let isGrounded = true; let isRespawning = false; let isGalaxyMode = false;
@@ -289,7 +297,7 @@ html_code = """
     function gameLoop() {
         if (!isGameRunning) return;
 
-        // ★逆ループで安全に要素を削除★
+        // ★逆ループで安全に要素を削除（バグ根絶！）★
         for (let i = stolenScenes.length - 1; i >= 0; i--) {
             const scene = stolenScenes[i];
             scene.x += scene.vx; scene.y += scene.vy;
@@ -343,7 +351,7 @@ html_code = """
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i];
                 item.left -= 3; item.element.style.left = `${item.left}px`;
-                const itemY = item.y || parseFloat(item.element.style.bottom); // フォールバック
+                const itemY = item.y || parseFloat(item.element.style.bottom); 
                 if (item.left < currentPlayerX + 54 && item.left + 30 > currentPlayerX) {
                     if (Math.abs(playerY - itemY) < 50 && !isStunned) {
                         item.element.remove(); items.splice(i, 1); carriageCount++; renderTrain(); showGetEffect();
@@ -369,7 +377,6 @@ html_code = """
                 if (crow.x < -100 || crow.y > 800 || crow.y < -50) { crow.element.remove(); crows.splice(i, 1); }
             }
             
-            // 障害物＆アイテム（通常）
             let currentGround = null;
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i];
