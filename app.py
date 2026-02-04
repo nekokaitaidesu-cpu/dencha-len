@@ -5,8 +5,8 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="ぽよぽよ電車ジャンプ！", layout="wide")
 
 # タイトル
-st.title("🍄 激闘！特攻カラスと回転列車 🚂🌀🆚🦅")
-st.write("ボス戦の操作が変わったよ！【スワイプ：移動】【タップ：発射】だっち！先頭車両だけになっても諦めるな！")
+st.title("ぽよぽよ電車ジャンプ")
+st.write("チケットを取ると車両が増えるよ！4車両で宇宙モード突入！")
 
 # HTML/CSS/JSコード
 html_code = """
@@ -386,5 +386,3 @@ html_code = """
 
 # HTMLを描画
 components.html(html_code, height=650)
-
-st.write("スワイプで回避、タップで発射！新感覚のボス戦を楽しんでね！🍄💥")
