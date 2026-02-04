@@ -169,12 +169,7 @@ goalMessage.addEventListener("click", ()=>{
     station.style.display = "none";
 });
 
-/* ===== デモ用：3秒後にゴール ===== */
-setTimeout(showGoal, 3000);
-</script>
 
-</body>
-</html>
 """
 
 components.html(html_code, height=650)
